@@ -1,12 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Ninject.Activation;
 using System.Web.Http.ModelBinding;
-using System.Web.Http.Results;
 using Wallet.Tools.database;
 using Wallet.Tools.generic_module;
-using Wallet.Tools.injector;
 using Wallet.Tools.validation_dictionary;
-using Context = Wallet.Tools.database.Context;
 
 namespace Wallet.Modules.asset_module
 {
@@ -14,7 +10,6 @@ namespace Wallet.Modules.asset_module
     {
         #region Variáveis
         private IValidationDictionary _validatonDictionary;
-        private AssetRepository _repository;
         private Context _context;
 
 

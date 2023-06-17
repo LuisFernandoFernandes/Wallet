@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Wallet.Tools.database;
-using Wallet.Tools.generic_module;
+﻿using Wallet.Tools.generic_module;
 
 namespace Wallet.Modules.asset_module
 {

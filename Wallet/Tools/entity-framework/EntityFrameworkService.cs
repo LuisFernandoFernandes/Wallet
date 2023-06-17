@@ -28,18 +28,18 @@ namespace Wallet.Tools.entity_framework
             context.Entry(objeto).State = estado;
         }
 
-        public virtual async Task AlterarAsync(TModelo objeto)
+        public virtual async Task UpdateAsync(TModelo objeto)
         {
             Acao(_context, objeto, EntityState.Modified);
             await _context.SaveChangesAsync();
         }
 
-        public virtual async Task AlterarAsync(List<TModelo> listObjetos)
+        public virtual async Task UpdateAsync(List<TModelo> listObjetos)
         {
-            foreach (var objeto in listObjetos) { await AlterarAsync(objeto); }
+            foreach (var objeto in listObjetos) { await UpdateAsync(objeto); }
         }
 
-        public virtual async Task ExcluirAsync(string id)
+        public virtual async Task DeleteAsync(string id)
         {
             TModelo objContext = await _context.Set<TModelo>().FindAsync(id);
             if (objContext == null) { return; }
@@ -47,34 +47,74 @@ namespace Wallet.Tools.entity_framework
             await _context.SaveChangesAsync();
         }
 
-        public virtual async Task ExcluirAsync(List<string> ids)
+        public virtual async Task DeleteAsync(List<string> ids)
         {
-            foreach (var id in ids) { await ExcluirAsync(id); }
+            foreach (var id in ids) { await DeleteAsync(id); }
         }
 
-        public virtual async Task ExcluirAsync(TModelo objeto)
+        public virtual async Task DeleteAsync(TModelo objeto)
         {
             Acao(_context, objeto, EntityState.Deleted);
             await _context.SaveChangesAsync();
         }
 
-        public async Task ExcluirAsync(List<TModelo> objetos)
+        public async Task DeleteAsync(List<TModelo> objetos)
         {
-            foreach (var objeto in objetos) { await ExcluirAsync(objeto); }
+            foreach (var objeto in objetos) { await DeleteAsync(objeto); }
         }
 
-        public virtual async Task IncluirAsync(TModelo objeto)
+        public virtual async Task InsertAsync(TModelo objeto)
         {
             _context.Set<TModelo>().Add(objeto);
             await _context.SaveChangesAsync();
         }
 
-        public async Task IncluirAsync(TModelo[] objeto)
+        public async Task InsertAsync(TModelo[] objeto)
         {
             _context.Set<TModelo>().AddRange(objeto);
             await _context.SaveChangesAsync();
         }
 
         public IQueryable<TModelo> AsQueryable() { return _context.Set<TModelo>().AsQueryable<TModelo>(); }
+
+        public Task UpdateAsync(List<TModelo> obj, Context context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateAsync(TModelo obj, Context context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteAsync(List<string> ids, Context context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteAsync(List<TModelo> objs, Context context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteAsync(string id, Context context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteAsync(TModelo obj, Context context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task InsertAsync(TModelo obj, Context context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task InsertAsync(TModelo[] obj, Context context)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

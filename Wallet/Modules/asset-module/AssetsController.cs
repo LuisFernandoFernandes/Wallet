@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Wallet.Tools.database;
-using Wallet.Tools.generic_module;
-using Wallet.Tools.wrapper;
 
 namespace Wallet.Modules.asset_module
 {
+    [Authorize]
     [Route("assets")]
     public class AssetsController : ControllerBase
     {

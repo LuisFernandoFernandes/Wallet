@@ -1,4 +1,6 @@
-﻿namespace Wallet.Tools.generic_module
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace Wallet.Tools.generic_module
 {
     public interface IGenericModel : IDisposable
     {

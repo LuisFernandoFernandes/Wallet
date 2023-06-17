@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Wallet.Modules.asset_module;
+using Wallet.Modules.trade_module;
+using Wallet.Modules.user_module;
+using Wallet.Tools.session_control;
 
 namespace Wallet.Tools.database
 {
@@ -19,6 +22,18 @@ namespace Wallet.Tools.database
 
         #region DbSet
         public DbSet<Asset> Asset { get; set; }
+        public DbSet<Trade> Trade { get; set; }
+        public DbSet<User> User { get; set; }
+        public DbSet<SessionControl> SessionControl { get; set; }
         #endregion
+
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
+
+
+
     }
 }

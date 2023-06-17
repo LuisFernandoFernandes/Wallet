@@ -2,7 +2,7 @@
 
 namespace Wallet.Tools.generic_module
 {
-    public interface IGenericService<T> //: IEntityFrameworkService<TModelo>, IDisposable where TModelo : class, IGenericModel
+    public interface IGenericService<T> : IEntityFrameworkService<T>, IDisposable where T : class, IGenericModel
     { }
 
 }
