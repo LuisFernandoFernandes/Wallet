@@ -37,5 +37,9 @@ namespace Wallet.Modules.user_module
         [Column("Role")]
         [Display(Name = "Role")]
         public eRole Role { get; set; } = eRole.User;
+
+        [Column("IsEmailConfirmed")]
+        [Display(Name = "IsEmailConfirmed")]
+        public bool IsEmailConfirmed { get; set; } = false;
     }
 }

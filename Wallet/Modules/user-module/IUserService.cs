@@ -10,5 +10,6 @@ namespace Wallet.Modules.user_module
         Task<User> Delete(string id);
         Task<string> Login(UserDTO userDTO);
         string CreateRandomCpf();
+        Task ConfirmEmail(string code);
     }
 }

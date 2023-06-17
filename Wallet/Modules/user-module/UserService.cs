@@ -7,6 +7,8 @@ using NuGet.Common;
 using NuGet.Protocol.Plugins;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.Mail;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -123,7 +125,6 @@ namespace Wallet.Modules.user_module
             else if (await _context.User.AsQueryable().AnyAsync(a => a.UserName == user.UserName))
             {
                 throw new ArgumentException("Nome de usuário já cadastrado.");
-
             }
             else if (!CheckCpf(user.CPF))
             {
@@ -132,12 +133,14 @@ namespace Wallet.Modules.user_module
             else if (await _context.User.AsQueryable().AnyAsync(a => a.CPF == user.CPF))
             {
                 throw new ArgumentException("CPF já cadastrado.");
-
+            }
+            else if (!IsValidEmail(user.Email))
+            {
+                throw new ArgumentException("e-mail inválido.");
             }
             else if (await _context.User.AsQueryable().AnyAsync(a => a.Email == user.Email))
             {
                 throw new ArgumentException("e-mail já cadastrado.");
-
             }
             else
             {
@@ -313,5 +316,95 @@ namespace Wallet.Modules.user_module
             return digit == 10 ? 0 : digit;
         }
 
+        private bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return false;
+
+            string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            bool isMatch = Regex.IsMatch(email, pattern, RegexOptions.IgnoreCase);
+            if (!isMatch)
+                return false;
+
+            string domain = email.Split('@')[1];
+
+            string confirmationCode = GenerateConfirmationCode(email);
+
+            bool emailSent = SendConfirmationEmail(email, confirmationCode);
+
+            return emailSent;
+        }
+
+        private string GenerateConfirmationCode(string email)
+        {
+            string confirmationCode = $"{email}#{DateTime.Now.Ticks}-{Guid.NewGuid().ToString()}";
+            return confirmationCode;
+        }
+
+
+        private bool SendConfirmationEmail(string email, string confirmationCode)
+        {
+            try
+            {
+                using (var client = new SmtpClient())
+                {
+
+                    client.Timeout = 10000;
+                    client.Host = "sandbox.smtp.mailtrap.io";
+                    client.Port = 587;
+                    client.EnableSsl = true;
+
+
+                    client.Credentials = new NetworkCredential("6d834633092e98", "8316473f971f84");
+
+                    var confirmationEmail = new MailMessage
+                    {
+                        From = new MailAddress("your_email@example.com")
+                    };
+                    confirmationEmail.To.Add(email);
+                    confirmationEmail.Subject = "Confirmação de E-mail";
+                    confirmationEmail.Body = $"Por favor, clique no link abaixo para confirmar o seu e-mail:\n\n" +
+                                             $"https://localhost:7184/user/confirm?code={confirmationCode}";
+
+                    client.Send(confirmationEmail);
+
+                    return true;
+                }
+            }
+            catch (SmtpException)
+            {
+                return false;
+            }
+        }
+
+
+        public async Task ConfirmEmail(string code)
+        {
+            var email = ExtractEmailFromConfirmationCode(code);
+
+            if (email == null) throw new ArgumentException("Código inválido. e-mail inexistente.");
+
+            var user = await _context.User.AsQueryable().Where(a => a.Email == email).FirstOrDefaultAsync();
+
+            if (user == null) throw new ArgumentException("Código inválido. Usuário inexistente.");
+
+            user.IsEmailConfirmed = true;
+
+            await UpdateAsync(user, _context);
+        }
+
+        private string ExtractEmailFromConfirmationCode(string confirmationCode)
+        {
+            if (confirmationCode.Contains("#"))
+            {
+                string[] parts = confirmationCode.Split('#');
+
+                string email = parts[0];
+
+                return email;
+            }
+
+            return string.Empty;
+        }
     }
 }

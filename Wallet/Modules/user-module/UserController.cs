@@ -41,7 +41,7 @@ namespace Wallet.Modules.user_module
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return Problem(ex.Message);
                 //return Problem("Algo deu errado, contate o administrador.");
             }
         }
@@ -150,6 +150,26 @@ namespace Wallet.Modules.user_module
                 return Problem("Algo deu errado, contate o administrador.");
             }
         }
+
+        [HttpPatch("confirm"), AllowAnonymous]
+        public async Task<ActionResult> ConfirmEmail(string code)
+        {
+            try
+            {
+                await _service.ConfirmEmail(code);
+                return Ok();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+                //return Problem("Algo deu errado, contate o administrador.");
+            }
+        }
+
 
     }
 }

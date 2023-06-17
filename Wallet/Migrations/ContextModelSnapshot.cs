@@ -96,6 +96,10 @@ namespace Wallet.Migrations
                         .HasColumnType("text")
                         .HasColumnName("Email");
 
+                    b.Property<bool>("IsEmailConfirmed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsEmailConfirmed");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")

@@ -12,7 +12,7 @@ using Wallet.Tools.database;
 namespace Wallet.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230616235205_Init")]
+    [Migration("20230617032247_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -98,6 +98,10 @@ namespace Wallet.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("Email");
+
+                    b.Property<bool>("IsEmailConfirmed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsEmailConfirmed");
 
                     b.Property<string>("Name")
                         .IsRequired()
