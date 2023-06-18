@@ -118,35 +118,49 @@ namespace Wallet.Modules.user_module
                 throw new ArgumentException();
             }
 
-            if (await _context.User.AsQueryable().AnyAsync(a => a.Id == user.Id))
-            {
-                await UpdateAsync(user, _context);
-            }
-            else if (await _context.User.AsQueryable().AnyAsync(a => a.UserName == user.UserName))
-            {
-                throw new ArgumentException("Nome de usuário já cadastrado.");
-            }
-            else if (!CheckCpf(user.CPF))
+            if (!CheckCpf(user.CPF))
             {
                 throw new ArgumentException("CPF inválido.");
             }
-            else if (await _context.User.AsQueryable().AnyAsync(a => a.CPF == user.CPF))
+
+            if (!IsValidEmail(user.Email))
             {
-                throw new ArgumentException("CPF já cadastrado.");
+                throw new ArgumentException("E-mail inválido.");
             }
-            else if (!IsValidEmail(user.Email))
+
+            var existingUser = await _context.User.FirstOrDefaultAsync(a => a.Id == user.Id);
+
+            if (existingUser != null)
             {
-                throw new ArgumentException("e-mail inválido.");
-            }
-            else if (await _context.User.AsQueryable().AnyAsync(a => a.Email == user.Email))
-            {
-                throw new ArgumentException("e-mail já cadastrado.");
+                await UpdateAsync(user, _context);
             }
             else
             {
+                var existingData = await _context.User.FirstOrDefaultAsync(a => a.UserName == user.UserName || a.CPF == user.CPF || a.Email == user.Email);
+
+                if (existingData != null)
+                {
+                    if (existingData.UserName == user.UserName)
+                    {
+                        throw new ArgumentException("Nome de usuário já cadastrado.");
+                    }
+
+                    if (existingData.CPF == user.CPF)
+                    {
+                        throw new ArgumentException("CPF já cadastrado.");
+                    }
+
+                    if (existingData.Email == user.Email)
+                    {
+                        throw new ArgumentException("E-mail já cadastrado.");
+                    }
+                }
+
                 await InsertAsync(user, _context);
             }
         }
+
+
 
 
 
