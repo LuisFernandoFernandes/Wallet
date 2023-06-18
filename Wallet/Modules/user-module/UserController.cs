@@ -170,6 +170,5 @@ namespace Wallet.Modules.user_module
             }
         }
 
-
     }
 }

@@ -29,14 +29,16 @@ namespace Wallet.Modules.user_module
         private IValidationDictionary _validatonDictionary;
         private Context _context;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         ModelStateDictionary modelState = new ModelStateDictionary();
         #endregion
 
         #region Construtor
-        public UserService(Context context, IConfiguration configuration)
+        public UserService(Context context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -419,6 +421,12 @@ namespace Wallet.Modules.user_module
             }
 
             return string.Empty;
+        }
+
+        public string GetLoggedInUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
         }
     }
 }

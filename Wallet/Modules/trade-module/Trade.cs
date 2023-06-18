@@ -10,6 +10,12 @@ namespace Wallet.Modules.trade_module
     [Table("TRADE")]
     public class Trade : GenericModel
     {
+        [Column("UserId")]
+        [Display(Name = "User")]
+        public string? UserId { get; set; }
+        [ForeignKey("UserId")]
+        public Asset? User { get; set; }
+
         [Column("Type")]
         [Display(Name = "Type")]
         public eTradeType Type { get; set; }

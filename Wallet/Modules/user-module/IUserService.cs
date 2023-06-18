@@ -11,5 +11,6 @@ namespace Wallet.Modules.user_module
         Task<string> Login(UserDTO userDTO);
         string CreateRandomCpf();
         Task ConfirmEmail(string code);
+        string GetLoggedInUserId()
     }
 }

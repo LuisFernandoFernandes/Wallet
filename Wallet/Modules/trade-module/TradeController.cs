@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Wallet.Modules.asset_module;
+using System.Security.Claims;
+using Wallet.Modules.trade_module;
 using Wallet.Tools.database;
 
 namespace Wallet.Modules.trade_module
@@ -16,6 +17,87 @@ namespace Wallet.Modules.trade_module
         {
             _context = context;
             _service = new TradeService(_context);
+        }
+        #endregion
+
+
+        #region Creat
+        [HttpPost]
+        public async Task<ActionResult<string>> Creat(Trade trade)
+        {
+            try
+            {
+                var response = await _service.Creat(trade);
+                return Ok(response);
+            }
+            catch (ArgumentNullException)
+            {
+                return NotFound("Ativo já cadastrado.");
+            }
+            catch (Exception)
+            {
+                return Problem("Algo deu errado, contate o administrador.");
+            }
+        }
+        #endregion
+
+        #region Read
+        [HttpGet]
+        public async Task<ActionResult<Trade>> Read(string? id)
+        {
+            try
+            {
+                var list = await _service.Read(id);
+                return Ok(list);
+            }
+            catch (ArgumentNullException)
+            {
+                return NotFound("Nenhum ativo encontrado.");
+            }
+            catch (Exception)
+            {
+                return Problem("Algo deu errado, contate o administrador.");
+            }
+        }
+        #endregion
+
+        #region Update
+        [HttpPatch]
+        public async Task<ActionResult<string>> Update(string id, Trade trade)
+        {
+            try
+            {
+                var response = await _service.Update(id, trade);
+                return Ok(response);
+            }
+            catch (ArgumentNullException)
+            {
+                return NotFound("Ativo já cadastrado.");
+            }
+            catch (Exception)
+            {
+                return Problem("Algo deu errado, contate o administrador.");
+            }
+        }
+        #endregion
+
+        #region Delete
+        [HttpDelete]
+        public async Task<ActionResult<string>> Delete(string id)
+        {
+            try
+            {
+                var response = await _service.Delete(id);
+                return Ok(response);
+            }
+            catch (ArgumentNullException)
+            {
+                return NotFound("Ativo já cadastrado.");
+            }
+            catch (Exception)
+            {
+                return Problem("Algo deu errado, contate o administrador.");
+            }
         }
         #endregion
     }
