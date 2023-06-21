@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Wallet.Modules.asset_module;
+using Wallet.Modules.position_module;
 using Wallet.Modules.trade_module;
 using Wallet.Modules.user_module;
 using Wallet.Tools.session_control;
@@ -24,6 +25,7 @@ namespace Wallet.Tools.database
         public DbSet<Asset> Asset { get; set; }
         public DbSet<Trade> Trade { get; set; }
         public DbSet<User> User { get; set; }
+        public DbSet<Position> Position { get; set; }
         public DbSet<SessionControl> SessionControl { get; set; }
         #endregion
 

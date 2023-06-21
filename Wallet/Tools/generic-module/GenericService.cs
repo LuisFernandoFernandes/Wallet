@@ -19,11 +19,11 @@ namespace Wallet.Tools.generic_module
 
         #endregion
 
-        //public string GetLoggedInUserId()
-        //{
-        //    var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        //    return userId;
-        //}
+        public string GetLoggedInUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
 
         public async Task InsertAsync(T obj, Context context)
         {

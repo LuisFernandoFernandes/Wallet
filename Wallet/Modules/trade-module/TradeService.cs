@@ -43,9 +43,10 @@ namespace Wallet.Modules.trade_module
         public async Task<Trade> Update(Trade trade)
         {
             await UpdateAsync(trade, _context);
+            return trade;
         }
 
-        public async Task<Trade> Delete(string id)
+        public async Task Delete(string id)
         {
             await DeleteAsync(id, _context);
 

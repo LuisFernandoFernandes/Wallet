@@ -70,7 +70,7 @@ namespace Wallet.Modules.trade_module
         {
             try
             {
-                var response = await _service.Update(id, trade);
+                var response = await _service.Update(trade);
                 return Ok(response);
             }
             catch (ArgumentNullException)
@@ -90,8 +90,8 @@ namespace Wallet.Modules.trade_module
         {
             try
             {
-                var response = await _service.Delete(id);
-                return Ok(response);
+                await _service.Delete(id);
+                return Ok("Exclusão realizada com sucesso.");
             }
             catch (ArgumentNullException)
             {
