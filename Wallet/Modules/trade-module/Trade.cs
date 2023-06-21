@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml.Linq;
 using Wallet.Modules.asset_module;
 using Wallet.Modules.trade_module.enums;
+using Wallet.Modules.user_module;
 using Wallet.Tools.generic_module;
 
 namespace Wallet.Modules.trade_module
@@ -13,8 +14,9 @@ namespace Wallet.Modules.trade_module
         [Column("UserId")]
         [Display(Name = "User")]
         public string? UserId { get; set; }
+
         [ForeignKey("UserId")]
-        public Asset? User { get; set; }
+        public User? User { get; set; }
 
         [Column("Type")]
         [Display(Name = "Type")]

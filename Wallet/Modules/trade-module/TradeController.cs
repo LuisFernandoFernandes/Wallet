@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Wallet.Modules.position_module;
 using Wallet.Modules.trade_module;
 using Wallet.Modules.user_module;
 using Wallet.Tools.database;
@@ -12,14 +13,15 @@ namespace Wallet.Modules.trade_module
         private Context _context;
         private readonly IUserService _userService;
         private ITradeService _service;
+        private IUserService _userService;
+        private IPositionService _positionService;
         #endregion
 
         #region Constructor
         public TradeController(Context context, IUserService userService)
         {
             _context = context;
-            _userService = userService;
-            _service = new TradeService(_context, _userService);
+            _service = new TradeService(_context);
         }
         #endregion
 
@@ -35,7 +37,7 @@ namespace Wallet.Modules.trade_module
             }
             catch (ArgumentNullException)
             {
-                return NotFound("Ativo já cadastrado.");
+                return NotFound("Movimentação já cadastrado.");
             }
             catch (Exception)
             {
@@ -66,7 +68,7 @@ namespace Wallet.Modules.trade_module
 
         #region Update
         [HttpPatch]
-        public async Task<ActionResult<string>> Update(string id, Trade trade)
+        public async Task<ActionResult<string>> Update(Trade trade)
         {
             try
             {
@@ -75,7 +77,7 @@ namespace Wallet.Modules.trade_module
             }
             catch (ArgumentNullException)
             {
-                return NotFound("Ativo já cadastrado.");
+                return NotFound("Movimentação já cadastrado.");
             }
             catch (Exception)
             {
@@ -90,12 +92,12 @@ namespace Wallet.Modules.trade_module
         {
             try
             {
-                await _service.Delete(id);
-                return Ok("Exclusão realizada com sucesso.");
+                var response = await _service.Delete(id);
+                return Ok(response);
             }
             catch (ArgumentNullException)
             {
-                return NotFound("Ativo já cadastrado.");
+                return NotFound("Movimentação já cadastrado.");
             }
             catch (Exception)
             {

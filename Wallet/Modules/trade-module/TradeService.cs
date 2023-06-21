@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Web.Http.ModelBinding;
 using Wallet.Modules.asset_module;
+using Wallet.Modules.position_module;
 using Wallet.Modules.user_module;
 using Wallet.Tools.database;
 using Wallet.Tools.generic_module;
@@ -16,15 +17,32 @@ namespace Wallet.Modules.trade_module
         private TradeRepository _repository;
         private Context _context;
         private IUserService _userService;
+        private readonly IPositionService _positionService;
         ModelStateDictionary modelState = new ModelStateDictionary();
         #endregion
 
         #region Constructor
-        public TradeService(Context context, IUserService userService)
+        public TradeService(Context context, IUserService userService, IPositionService positionService)
         {
             _context = context;
             _userService = userService;
+            _positionService = positionService;
+
+            //Criar Triggers genéricos, o position precisa ser recalculado a cada alteração em trade.
+            AfterInsert = async (obj) =>
+            {
+                var position = new Position
+                {
+                    AssetId = obj.AssetId,
+                    CurrentPrice = "100",
+                    AveragePrice = obj.Price,
+                    UserId = obj.UserId,
+                    Quantity = obj.Amount,
+                    TotalGainLoss = "1000"
+                };
+            };
         }
+        #endregion
 
         public async Task<Trade> Creat(Trade trade)
         {
@@ -51,11 +69,5 @@ namespace Wallet.Modules.trade_module
             await DeleteAsync(id, _context);
 
         }
-
-
-
-
-
-        #endregion
     }
 }

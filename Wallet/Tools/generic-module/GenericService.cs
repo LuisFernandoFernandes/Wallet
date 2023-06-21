@@ -25,6 +25,12 @@ namespace Wallet.Tools.generic_module
             return userId;
         }
 
+        //public string GetLoggedInUserId()
+        //{
+        //    var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    return userId;
+        //}
+
         public async Task InsertAsync(T obj, Context context)
         {
             if (BeforeInsert != null) await BeforeInsert.Invoke(obj);

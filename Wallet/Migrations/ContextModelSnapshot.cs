@@ -45,6 +45,49 @@ namespace Wallet.Migrations
                     b.ToTable("ASSET");
                 });
 
+            modelBuilder.Entity("Wallet.Modules.position_module.Position", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("AssetId")
+                        .HasColumnType("text")
+                        .HasColumnName("AssetId");
+
+                    b.Property<string>("AveragePrice")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("AveragePrice");
+
+                    b.Property<string>("CurrentPrice")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("CurrentPrice");
+
+                    b.Property<string>("Quantity")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("Quantity");
+
+                    b.Property<string>("TotalGainLoss")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("TotalGainLoss");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("POSITION");
+                });
+
             modelBuilder.Entity("Wallet.Modules.trade_module.Trade", b =>
                 {
                     b.Property<string>("Id")
@@ -73,9 +116,15 @@ namespace Wallet.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("Type");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("UserId");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AssetId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("TRADE");
                 });
@@ -159,13 +208,34 @@ namespace Wallet.Migrations
                     b.ToTable("SESSION_CONTROL");
                 });
 
+            modelBuilder.Entity("Wallet.Modules.position_module.Position", b =>
+                {
+                    b.HasOne("Wallet.Modules.asset_module.Asset", "Asset")
+                        .WithMany()
+                        .HasForeignKey("AssetId");
+
+                    b.HasOne("Wallet.Modules.user_module.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Asset");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Wallet.Modules.trade_module.Trade", b =>
                 {
                     b.HasOne("Wallet.Modules.asset_module.Asset", "Asset")
                         .WithMany()
                         .HasForeignKey("AssetId");
 
+                    b.HasOne("Wallet.Modules.user_module.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
                     b.Navigation("Asset");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Wallet.Tools.session_control.SessionControl", b =>
