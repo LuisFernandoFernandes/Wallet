@@ -34,11 +34,11 @@ namespace Wallet.Modules.user_module
         #endregion
 
         #region Construtor
-        public UserService(Context context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public UserService(Context context, IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
+            //_httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -423,10 +423,10 @@ namespace Wallet.Modules.user_module
             return string.Empty;
         }
 
-        public string GetLoggedInUserId()
-        {
-            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userId;
-        }
+        //public string GetLoggedInUserId()
+        //{
+        //    var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    return userId;
+        //}
     }
 }

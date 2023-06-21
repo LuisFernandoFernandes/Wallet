@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Wallet.Modules.trade_module;
+using Wallet.Modules.user_module;
 using Wallet.Tools.database;
 
 namespace Wallet.Modules.trade_module
@@ -9,14 +10,16 @@ namespace Wallet.Modules.trade_module
     {
         #region Variables
         private Context _context;
+        private readonly IUserService _userService;
         private ITradeService _service;
         #endregion
 
         #region Constructor
-        public TradeController(Context context)
+        public TradeController(Context context, IUserService userService)
         {
             _context = context;
-            _service = new TradeService(_context);
+            _userService = userService;
+            _service = new TradeService(_context, _userService);
         }
         #endregion
 

@@ -1,15 +1,38 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using Wallet.Tools.database;
+using Wallet.Tools.entity_framework;
 
 namespace Wallet.Tools.generic_module
 {
-    public class GenericService<T> : IGenericService<T> where T : class, IGenericModel
+    public class GenericService<T> : /*EntityFrameworkService<T>,*/ IGenericService<T> where T : class, IGenericModel
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        #region Events
+        public Func<T, Task> BeforeInsert = null;
+        public Func<T, Task> AfterInsert = null;
+        public Func<T, Task> BeforeUpdate = null;
+        public Func<T, Task> AfterUpdate = null;
+        public Func<T, Task> BeforeDelete = null;
+        public Func<T, Task> AfterDelete = null;
+
+        #endregion
+
+        //public string GetLoggedInUserId()
+        //{
+        //    var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    return userId;
+        //}
 
         public async Task InsertAsync(T obj, Context context)
         {
+            if (BeforeInsert != null) await BeforeInsert.Invoke(obj);
+
             context.Add(obj);
             await context.SaveChangesAsync();
+
+            if (AfterInsert != null) await AfterInsert.Invoke(obj);
         }
 
         public async Task InsertAsync(T[] obj, Context context)
@@ -68,13 +91,10 @@ namespace Wallet.Tools.generic_module
         public void Dispose() { }
 
 
-
-
         public void SetContext(Context context)
         {
             throw new NotImplementedException();
         }
-
 
     }
 }
