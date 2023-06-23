@@ -26,13 +26,37 @@ namespace Wallet.Modules.user_module
         }
         #endregion
 
+
+        #region CreateSeedData
+        [HttpPost("seeddata"), AllowAnonymous]
+        public async Task<ActionResult<string>> CreateSeedData()
+        {
+            try
+            {
+                var response = await _service.CreateSeedData();
+                return Ok(response);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+                //return Problem("Algo deu errado, contate o administrador.");
+            }
+        }
+        #endregion
+
+
+
         #region Creat
         [HttpPost, AllowAnonymous]
         public async Task<ActionResult<string>> Creat(UserDTO user)
         {
             try
             {
-                var response = await _service.Creat(user);
+                var response = await _service.Create(user);
                 return Ok(response);
             }
             catch (ArgumentException ex)

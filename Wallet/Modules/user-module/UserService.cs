@@ -1,24 +1,14 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using NuGet.Common;
-using NuGet.Protocol.Plugins;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Mail;
-using System.Runtime.Intrinsics.X86;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Http.ModelBinding;
-using System.Xml.Linq;
 using Wallet.Tools.database;
 using Wallet.Tools.generic_module;
-using Wallet.Tools.session_control;
 using Wallet.Tools.validation_dictionary;
 
 namespace Wallet.Modules.user_module
@@ -31,6 +21,7 @@ namespace Wallet.Modules.user_module
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         ModelStateDictionary modelState = new ModelStateDictionary();
+        //private IHttpContextAccessor? httpContextAccessor;
         #endregion
 
         #region Construtor
@@ -44,7 +35,7 @@ namespace Wallet.Modules.user_module
         #endregion
 
 
-        public async Task<User> Creat(UserDTO userDto)
+        public async Task<User> Create(UserDTO userDto)
         {
 
             CreatePasswordHash(userDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
@@ -423,10 +414,32 @@ namespace Wallet.Modules.user_module
             return string.Empty;
         }
 
-        //public string GetLoggedInUserId()
-        //{
-        //    var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        //    return userId;
-        //}
+        public string GetLoggedInUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
+
+        public async Task<string> CreateSeedData()
+        {
+            var users = new List<UserDTO>()
+            {
+                new UserDTO
+                {
+                    UserName = "LF",
+                    Password = "1234",
+                    Name = "Luís Fernando Garcia Fernandes",
+                    Email = "l.fernando@protonmail.com",
+                    CPF = "40526460881"
+                },
+                // Adicione outros usuários à lista
+            };
+            foreach (var user in users)
+            {
+                if (await _context.User.AsQueryable().AnyAsync(a => a.UserName == user.UserName || a.Email == user.Email || a.CPF == user.CPF)) continue;
+                await Create(user);
+            }
+            return string.Empty;
+        }
     }
 }

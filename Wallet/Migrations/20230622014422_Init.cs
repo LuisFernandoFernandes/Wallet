@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Wallet.Migrations
 {
     /// <inheritdoc />
-    public partial class Trade : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -51,10 +51,10 @@ namespace Wallet.Migrations
                     Id = table.Column<string>(type: "text", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: true),
                     AssetId = table.Column<string>(type: "text", nullable: true),
-                    Quantity = table.Column<string>(type: "text", nullable: false),
-                    AveragePrice = table.Column<string>(type: "text", nullable: false),
-                    CurrentPrice = table.Column<string>(type: "text", nullable: false),
-                    TotalGainLoss = table.Column<string>(type: "text", nullable: false)
+                    Quantity = table.Column<double>(type: "double precision", nullable: false),
+                    AveragePrice = table.Column<double>(type: "double precision", nullable: false),
+                    CurrentPrice = table.Column<double>(type: "double precision", nullable: false),
+                    TotalGainLoss = table.Column<double>(type: "double precision", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -102,8 +102,8 @@ namespace Wallet.Migrations
                     Type = table.Column<int>(type: "integer", nullable: false),
                     Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     AssetId = table.Column<string>(type: "text", nullable: true),
-                    Amount = table.Column<string>(type: "text", nullable: false),
-                    Price = table.Column<string>(type: "text", nullable: false)
+                    Amount = table.Column<double>(type: "double precision", nullable: false),
+                    Price = table.Column<double>(type: "double precision", nullable: false)
                 },
                 constraints: table =>
                 {

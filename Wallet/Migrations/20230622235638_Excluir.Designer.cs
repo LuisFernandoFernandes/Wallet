@@ -2,9 +2,9 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Wallet.Tools.database;
 
 #nullable disable
@@ -12,34 +12,35 @@ using Wallet.Tools.database;
 namespace Wallet.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230612010006_Login")]
-    partial class Login
+    [Migration("20230622235638_Excluir")]
+    partial class Excluir
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.9")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("ProductVersion", "7.0.7")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Wallet.Modules.asset_module.Asset", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
                         .HasColumnName("Id");
 
                     b.Property<int?>("Class")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("Class");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("Description");
 
                     b.Property<string>("Ticker")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("Ticker");
 
                     b.HasKey("Id");
@@ -47,37 +48,80 @@ namespace Wallet.Migrations
                     b.ToTable("ASSET");
                 });
 
-            modelBuilder.Entity("Wallet.Modules.trade_module.Trade", b =>
+            modelBuilder.Entity("Wallet.Modules.position_module.Position", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
                         .HasColumnName("Id");
 
-                    b.Property<string>("Amount")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Amount");
-
                     b.Property<string>("AssetId")
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
                         .HasColumnName("AssetId");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("Date");
+                    b.Property<double>("AveragePrice")
+                        .HasColumnType("double precision")
+                        .HasColumnName("AveragePrice");
 
-                    b.Property<string>("Price")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Price");
+                    b.Property<double>("CurrentPrice")
+                        .HasColumnType("double precision")
+                        .HasColumnName("CurrentPrice");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int")
-                        .HasColumnName("Type");
+                    b.Property<double>("Quantity")
+                        .HasColumnType("double precision")
+                        .HasColumnName("Quantity");
+
+                    b.Property<double>("TotalGainLoss")
+                        .HasColumnType("double precision")
+                        .HasColumnName("TotalGainLoss");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("UserId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AssetId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("POSITION");
+                });
+
+            modelBuilder.Entity("Wallet.Modules.trade_module.Trade", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("Id");
+
+                    b.Property<double>("Amount")
+                        .HasColumnType("double precision")
+                        .HasColumnName("Amount");
+
+                    b.Property<string>("AssetId")
+                        .HasColumnType("text")
+                        .HasColumnName("AssetId");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("Date");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision")
+                        .HasColumnName("Price");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("Type");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("TRADE");
                 });
@@ -85,41 +129,45 @@ namespace Wallet.Migrations
             modelBuilder.Entity("Wallet.Modules.user_module.User", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
                         .HasColumnName("Id");
 
                     b.Property<string>("CPF")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("CPF");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("Email");
+
+                    b.Property<bool>("IsEmailConfirmed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsEmailConfirmed");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("Name");
 
                     b.Property<byte[]>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("varbinary(max)")
+                        .HasColumnType("bytea")
                         .HasColumnName("PasswordHash");
 
                     b.Property<byte[]>("PasswordSalt")
                         .IsRequired()
-                        .HasColumnType("varbinary(max)")
+                        .HasColumnType("bytea")
                         .HasColumnName("PasswordSalt");
 
                     b.Property<int>("Role")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("Role");
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("UserName");
 
                     b.HasKey("Id");
@@ -130,25 +178,25 @@ namespace Wallet.Migrations
             modelBuilder.Entity("Wallet.Tools.session_control.SessionControl", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
                         .HasColumnName("Id");
 
                     b.Property<DateTime?>("DateLogin")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("DateLogout")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("SessionId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -157,13 +205,34 @@ namespace Wallet.Migrations
                     b.ToTable("SESSION_CONTROL");
                 });
 
+            modelBuilder.Entity("Wallet.Modules.position_module.Position", b =>
+                {
+                    b.HasOne("Wallet.Modules.asset_module.Asset", "Asset")
+                        .WithMany()
+                        .HasForeignKey("AssetId");
+
+                    b.HasOne("Wallet.Modules.user_module.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Asset");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Wallet.Modules.trade_module.Trade", b =>
                 {
                     b.HasOne("Wallet.Modules.asset_module.Asset", "Asset")
                         .WithMany()
                         .HasForeignKey("AssetId");
 
+                    b.HasOne("Wallet.Modules.user_module.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
                     b.Navigation("Asset");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Wallet.Tools.session_control.SessionControl", b =>

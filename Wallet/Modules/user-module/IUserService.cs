@@ -4,7 +4,7 @@ namespace Wallet.Modules.user_module
 {
     public interface IUserService : IGenericService<User>
     {
-        Task<User> Creat(UserDTO userDto);
+        Task<User> Create(UserDTO userDto);
         Task<List<User>> Read(string? id, string? ticker);
         Task<User> Update(string id, User user);
         Task<User> Delete(string id);
@@ -12,5 +12,6 @@ namespace Wallet.Modules.user_module
         string CreateRandomCpf();
         Task ConfirmEmail(string code);
         string GetLoggedInUserId();
+        Task<string> CreateSeedData();
     }
 }

@@ -7,13 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20220925000912_initial.cs" />
-    <Compile Remove="Migrations\20220925000912_initial.Designer.cs" />
-    <Compile Remove="Migrations\20230610203131_UserContext.cs" />
-    <Compile Remove="Migrations\20230610203131_UserContext.Designer.cs" />
-    <Compile Remove="Migrations\20230612010006_Login.cs" />
-    <Compile Remove="Migrations\20230612010006_Login.Designer.cs" />
-    <Compile Remove="Migrations\ContextModelSnapshot.cs" />
     <Compile Remove="Modules\user-module\LoginViewModel.cs" />
     <Compile Remove="Tools\generic-module\GenericController.cs" />
   </ItemGroup>

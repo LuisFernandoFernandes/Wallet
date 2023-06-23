@@ -4,6 +4,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
+using Wallet.Modules.asset_module;
+using Wallet.Modules.position_module;
+using Wallet.Modules.trade_module;
+using Wallet.Modules.user_module;
 using Wallet.Tools.database;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +28,10 @@ builder.Services.AddDbContext<Context>(options =>
     options.UseNpgsql("Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=1234",
         npgsqlOptions => npgsqlOptions.RemoteCertificateValidationCallback((_, _, _, _) => true)));
 
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITradeService, TradeService>();
+builder.Services.AddScoped<IPositionService, PositionService>();
+builder.Services.AddScoped<IAssetService, AssetService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

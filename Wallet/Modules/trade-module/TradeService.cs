@@ -34,19 +34,30 @@ namespace Wallet.Modules.trade_module
                 var position = new Position
                 {
                     AssetId = obj.AssetId,
-                    CurrentPrice = "100",
+                    CurrentPrice = 100,
                     AveragePrice = obj.Price,
                     UserId = obj.UserId,
                     Quantity = obj.Amount,
-                    TotalGainLoss = "1000"
+                    TotalGainLoss = 1000
                 };
             };
         }
         #endregion
 
-        public async Task<Trade> Creat(Trade trade)
+        public async Task<Trade> Creat(TradeDTO tradeDTO)
         {
-            trade.UserId = _userService.GetLoggedInUserId();
+
+            var userid = _userService.GetLoggedInUserId(); //tá dando erro aqui!
+            var trade = new Trade()
+            {
+                UserId = userid,
+                AssetId = tradeDTO.AssetId,
+                Date = tradeDTO.Date,
+                Type = tradeDTO.Type,
+                Amount = tradeDTO.Amount,
+                Price = tradeDTO.Price,
+            };
+
             await InsertAsync(trade, _context);
             return trade;
         }

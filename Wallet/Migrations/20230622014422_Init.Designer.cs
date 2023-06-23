@@ -12,8 +12,8 @@ using Wallet.Tools.database;
 namespace Wallet.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230621004642_Trade")]
-    partial class Trade
+    [Migration("20230622014422_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,24 +58,20 @@ namespace Wallet.Migrations
                         .HasColumnType("text")
                         .HasColumnName("AssetId");
 
-                    b.Property<string>("AveragePrice")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<double>("AveragePrice")
+                        .HasColumnType("double precision")
                         .HasColumnName("AveragePrice");
 
-                    b.Property<string>("CurrentPrice")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<double>("CurrentPrice")
+                        .HasColumnType("double precision")
                         .HasColumnName("CurrentPrice");
 
-                    b.Property<string>("Quantity")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<double>("Quantity")
+                        .HasColumnType("double precision")
                         .HasColumnName("Quantity");
 
-                    b.Property<string>("TotalGainLoss")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<double>("TotalGainLoss")
+                        .HasColumnType("double precision")
                         .HasColumnName("TotalGainLoss");
 
                     b.Property<string>("UserId")
@@ -97,9 +93,8 @@ namespace Wallet.Migrations
                         .HasColumnType("text")
                         .HasColumnName("Id");
 
-                    b.Property<string>("Amount")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<double>("Amount")
+                        .HasColumnType("double precision")
                         .HasColumnName("Amount");
 
                     b.Property<string>("AssetId")
@@ -110,9 +105,8 @@ namespace Wallet.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("Date");
 
-                    b.Property<string>("Price")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision")
                         .HasColumnName("Price");
 
                     b.Property<int>("Type")

@@ -5,7 +5,7 @@ namespace Wallet.Modules.trade_module
 {
     internal interface ITradeService : IGenericService<Trade>
     {
-        Task<Trade> Creat(Trade trade);
+        Task<Trade> Creat(TradeDTO trade);
         Task Delete(string id);
         Task<List<Trade>> Read(string? id);
         Task<Trade> Update(Trade trade);

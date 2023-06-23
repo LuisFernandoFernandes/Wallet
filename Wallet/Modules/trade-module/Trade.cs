@@ -34,10 +34,10 @@ namespace Wallet.Modules.trade_module
 
         [Column("Amount")]
         [Display(Name = "Amount")]
-        public string Amount { get; set; }
+        public double Amount { get; set; }
 
         [Column("Price")]
         [Display(Name = "Price")]
-        public string Price { get; set; }
+        public double Price { get; set; }
     }
 }

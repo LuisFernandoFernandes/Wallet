@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Wallet.Modules.position_module;
 using Wallet.Modules.trade_module;
@@ -7,28 +8,32 @@ using Wallet.Tools.database;
 
 namespace Wallet.Modules.trade_module
 {
+    [Route("trade")]
+    [ApiController]
+    [Authorize]
     public class TradeController : ControllerBase
     {
         #region Variables
         private Context _context;
-        private readonly IUserService _userService;
         private ITradeService _service;
         private IUserService _userService;
         private IPositionService _positionService;
         #endregion
 
         #region Constructor
-        public TradeController(Context context, IUserService userService)
+        public TradeController(Context context, IUserService userService, IPositionService positionService)
         {
             _context = context;
-            _service = new TradeService(_context);
+            _positionService = positionService;
+            _userService = userService;
+            _service = new TradeService(_context, _userService, _positionService);
         }
         #endregion
 
 
         #region Creat
         [HttpPost]
-        public async Task<ActionResult<string>> Creat(Trade trade)
+        public async Task<ActionResult<string>> Creat(TradeDTO trade)
         {
             try
             {
@@ -92,8 +97,8 @@ namespace Wallet.Modules.trade_module
         {
             try
             {
-                var response = await _service.Delete(id);
-                return Ok(response);
+                await _service.Delete(id);
+                return Ok();
             }
             catch (ArgumentNullException)
             {
