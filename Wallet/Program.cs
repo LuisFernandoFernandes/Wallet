@@ -28,6 +28,7 @@ builder.Services.AddDbContext<Context>(options =>
     options.UseNpgsql("Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=1234",
         npgsqlOptions => npgsqlOptions.RemoteCertificateValidationCallback((_, _, _, _) => true)));
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITradeService, TradeService>();
 builder.Services.AddScoped<IPositionService, PositionService>();

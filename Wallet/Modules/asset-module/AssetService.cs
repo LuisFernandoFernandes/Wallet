@@ -53,19 +53,22 @@ namespace Wallet.Modules.asset_module
         public async Task<Asset> Creat(Asset asset)
         {
             asset.Ticker = FixTicker(asset.Ticker);
-            await Insert(asset);
+            if (await _context.Asset.AnyAsync(a => a.Ticker == asset.Ticker && a.Class == asset.Class)) throw new ArgumentNullException("Ativo já cadastrado.");
+            await InsertOrUpdate(asset);
             return asset;
         }
 
         public async Task<Asset> Update(string id, Asset asset)
         {
-            Asset oldAsset = await _context.Asset.AsQueryable().Where(a => a.Id == id).FirstOrDefaultAsync();
+            var oldAsset = await _context.Asset.AsQueryable().Where(a => a.Id == id || a.Id == asset.Id).FirstOrDefaultAsync();
+
+            if (oldAsset == null) throw new ArgumentNullException("Não existe registro deste ativo.");
 
             asset.Id = oldAsset.Id;
             asset.Ticker ??= oldAsset.Ticker;
             asset.Description ??= oldAsset.Description;
             asset.Class ??= oldAsset.Class;
-            await Insert(asset);
+            await InsertOrUpdate(asset);
             return asset;
         }
 
@@ -83,7 +86,7 @@ namespace Wallet.Modules.asset_module
             return (char.IsNumber(ticker[ticker.Length - 1])) ? ticker + ".SA" : ticker;
         }
 
-        private async Task Insert(Asset asset)
+        private async Task InsertOrUpdate(Asset asset)
         {
             if (!modelState.IsValid)
             {

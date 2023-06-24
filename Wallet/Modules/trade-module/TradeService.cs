@@ -47,7 +47,7 @@ namespace Wallet.Modules.trade_module
         public async Task<Trade> Creat(TradeDTO tradeDTO)
         {
 
-            var userid = _userService.GetLoggedInUserId(); //tá dando erro aqui!
+            var userid = _userService.GetLoggedInUserId();
             var trade = new Trade()
             {
                 UserId = userid,

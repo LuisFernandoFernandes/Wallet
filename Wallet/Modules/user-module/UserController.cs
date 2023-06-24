@@ -14,15 +14,17 @@ namespace Wallet.Modules.user_module
         #region Variables
         private Context _context;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private IUserService _service;
         #endregion
 
         #region Constructor
-        public UserController(Context context, IConfiguration configuration)
+        public UserController(Context context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _configuration = configuration;
-            _service = new UserService(context, configuration);
+            _httpContextAccessor = httpContextAccessor;
+            _service = new UserService(context, configuration, httpContextAccessor);
         }
         #endregion
 

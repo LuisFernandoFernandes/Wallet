@@ -21,15 +21,14 @@ namespace Wallet.Modules.user_module
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         ModelStateDictionary modelState = new ModelStateDictionary();
-        //private IHttpContextAccessor? httpContextAccessor;
         #endregion
 
         #region Construtor
-        public UserService(Context context, IConfiguration configuration)
+        public UserService(Context context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _configuration = configuration;
-            //_httpContextAccessor = httpContextAccessor;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -178,7 +177,10 @@ namespace Wallet.Modules.user_module
 
         public async Task<string> Login(UserDTO request)
         {
-            var user = await _context.User.AsQueryable().Where(a => a.UserName == request.UserName).FirstOrDefaultAsync();
+            if (request.Password == null) { throw new ArgumentException("Insira uma senha."); }
+            if (request.UserName == null && request.Email == null && request.CPF == null) { throw new ArgumentException("Insira um dado para login."); }
+
+            var user = await _context.User.AsQueryable().Where(a => a.UserName == request.UserName || a.Email == request.Email || a.CPF == request.CPF).FirstOrDefaultAsync();
 
             if (user == null)
             {
