@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
@@ -12,6 +13,8 @@ using Wallet.Tools.alpha_vantage;
 using Wallet.Tools.database;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddUserSecrets<Program>();
 
 // Add services to the container.
 
@@ -58,7 +61,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
-                .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+                .GetBytes(builder.Configuration["AppSettings:Token"])),
             ValidateIssuer = false,
             ValidateAudience = false
         };
