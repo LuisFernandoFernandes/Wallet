@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Wallet.Tools.database;
@@ -11,9 +12,11 @@ using Wallet.Tools.database;
 namespace Wallet.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20230625233812_Position-Asset-Update")]
+    partial class PositionAssetUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,17 +70,9 @@ namespace Wallet.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("Quantity");
 
-                    b.Property<double>("TotalBought")
-                        .HasColumnType("double precision")
-                        .HasColumnName("TotalBought");
-
                     b.Property<double>("TotalGainLoss")
                         .HasColumnType("double precision")
                         .HasColumnName("TotalGainLoss");
-
-                    b.Property<double>("TotalSold")
-                        .HasColumnType("double precision")
-                        .HasColumnName("TotalSold");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text")

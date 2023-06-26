@@ -31,11 +31,13 @@ namespace Wallet.Modules.position_module
         [Display(Name = "Average Price")]
         public double AveragePrice { get; set; }
 
+        [Display(Name = "Total Bought")]
+        [Column("TotalBought")]
+        public double TotalBought { get; set; }
 
-        [Display(Name = "Current Price")]
-        [Column("CurrentPrice")]
-        public double CurrentPrice { get; set; }
-
+        [Display(Name = "Total Sold")]
+        [Column("TotalSold")]
+        public double TotalSold { get; set; }
 
         [Display(Name = "Total Gain/Loss")]
         [Column("TotalGainLoss")]

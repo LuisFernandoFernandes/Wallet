@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Web.Http.ModelBinding;
 using Wallet.Modules.asset_module;
 using Wallet.Modules.position_module;
+using Wallet.Modules.trade_module.enums;
 using Wallet.Modules.user_module;
 using Wallet.Tools.database;
 using Wallet.Tools.generic_module;
@@ -29,20 +30,49 @@ namespace Wallet.Modules.trade_module
             _positionService = positionService;
 
             //Criar Triggers genéricos, o position precisa ser recalculado a cada alteração em trade.
-            AfterInsert = async (obj) =>
+            BeforeInsert = async (obj) => { if (obj.Type == eTradeType.Sell) obj.Amount = obj.Amount * -1; };
+            AfterInsert = async (obj) => { await InitAfterInsert(obj); };
+        }
+        #endregion
+
+        private async Task InitAfterInsert(Trade obj)
+        {
+            await CalculatePosition(obj);
+        }
+
+        private async Task CalculatePosition(Trade obj)
+        {
+            var position = await _context.Position.AsQueryable().Where(a => a.UserId == obj.UserId && a.AssetId == obj.AssetId).FirstOrDefaultAsync();
+            var currentPrice = await _context.Asset.AsQueryable().Where(a => a.Id == obj.AssetId).Select(a => a.Price).FirstOrDefaultAsync();
+
+            if (position == null)
             {
-                var position = new Position
+                position = new Position
                 {
                     AssetId = obj.AssetId,
-                    CurrentPrice = 100,
                     AveragePrice = obj.Price,
                     UserId = obj.UserId,
                     Quantity = obj.Amount,
-                    TotalGainLoss = 1000
+                    TotalBought = obj.Type == eTradeType.Buy ? obj.Amount * obj.Price : 0,
+                    TotalSold = obj.Type == eTradeType.Sell ? obj.Amount * obj.Price : 0,
+                    TotalGainLoss = 0.0
                 };
-            };
+                await _positionService.InsertAsync(position, _context);
+                return;
+            }
+
+            var newAmount = position.Quantity + obj.Amount; //padronizar a nomenclatura.
+            var newAveragePrice = ((position.Quantity * position.AveragePrice) + (obj.Amount * obj.Price)) / newAmount;
+            position.AveragePrice = newAveragePrice;
+            position.Quantity = newAmount;
+            position.TotalBought = obj.Type == eTradeType.Buy ? position.TotalBought + (obj.Amount * obj.Price) : position.TotalBought;
+            position.TotalSold = obj.Type == eTradeType.Sell ? position.TotalSold + (obj.Amount * obj.Price) : position.TotalSold;
+            position.TotalGainLoss = position.TotalBought + position.TotalSold + position.Quantity * currentPrice;
+
+            await _positionService.UpdateAsync(position, _context);
+
+            //Criar um scheduler que atualiza o current price dos assets contidos na positions dos user logados, algo assim.
         }
-        #endregion
 
         public async Task<Trade> Creat(TradeDTO tradeDTO)
         {

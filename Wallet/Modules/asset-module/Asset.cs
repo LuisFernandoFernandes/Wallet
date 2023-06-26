@@ -20,5 +20,9 @@ namespace Wallet.Modules.asset_module
         [Column("Description")]
         [Display(Name = "Description")]
         public string? Description { get; set; }
+
+        [Column("Price")]
+        [Display(Name = "Price")]
+        public double Price { get; set; } = 0.0; //adicionar no beforeInsert o valor atual quando inserir o ativo.
     }
 }
