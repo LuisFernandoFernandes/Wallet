@@ -23,9 +23,9 @@ namespace Wallet.Modules.position_module
         [ForeignKey("AssetId")]
         public Asset? Asset { get; set; }
 
-        [Column("Quantity")]
-        [Display(Name = "Quantity")]
-        public double Quantity { get; set; }
+        [Column("Amount")]
+        [Display(Name = "Amount")]
+        public double Amount { get; set; }
 
         [Column("AveragePrice")]
         [Display(Name = "Average Price")]

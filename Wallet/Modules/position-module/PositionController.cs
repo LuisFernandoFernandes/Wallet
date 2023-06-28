@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Wallet.Modules.position_module;
 using Wallet.Modules.user_module;
 using Wallet.Tools.database;
 
 namespace Wallet.Modules.position_module
 {
+    [Authorize]
+    [Route("position")]
     public class PositionController : ControllerBase
     {
         #region Variables
@@ -14,41 +17,22 @@ namespace Wallet.Modules.position_module
         #endregion
 
         #region Constructor
-        public PositionController(Context context)
+        public PositionController(Context context, IUserService userService)
         {
             _context = context;
-            _service = new PositionService(_context);
+            _userService = userService;
+            _service = new PositionService(_context, _userService);
         }
         #endregion
 
 
-        //#region Creat
-        //[HttpPost]
-        //public async Task<ActionResult<string>> Creat(Position position)
-        //{
-        //    try
-        //    {
-        //        var response = await _service.Creat(position);
-        //        return Ok(response);
-        //    }
-        //    catch (ArgumentNullException)
-        //    {
-        //        return NotFound("Movimentação já cadastrado.");
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return Problem("Algo deu errado, contate o administrador.");
-        //    }
-        //}
-        //#endregion
-
         #region Read
         [HttpGet]
-        public async Task<ActionResult<Position>> Read(string? id)
+        public async Task<ActionResult<PositionDTO>> Read()
         {
             try
             {
-                var list = await _service.Read(id);
+                var list = await _service.Read();
                 return Ok(list);
             }
             catch (ArgumentNullException)
@@ -61,45 +45,5 @@ namespace Wallet.Modules.position_module
             }
         }
         #endregion
-
-        //#region Update
-        //[HttpPatch]
-        //public async Task<ActionResult<string>> Update(Position position)
-        //{
-        //    try
-        //    {
-        //        var response = await _service.Update(position);
-        //        return Ok(response);
-        //    }
-        //    catch (ArgumentNullException)
-        //    {
-        //        return NotFound("Movimentação já cadastrado.");
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return Problem("Algo deu errado, contate o administrador.");
-        //    }
-        //}
-        //#endregion
-
-        //#region Delete
-        //[HttpDelete]
-        //public async Task<ActionResult<string>> Delete(string id)
-        //{
-        //    try
-        //    {
-        //        await _service.Delete(id);
-        //        return Ok("Movimentação excluída com sucesso.");
-        //    }
-        //    catch (ArgumentNullException)
-        //    {
-        //        return NotFound("Movimentação já cadastrado.");
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return Problem("Algo deu errado, contate o administrador.");
-        //    }
-        //}
-        //#endregion
     }
 }

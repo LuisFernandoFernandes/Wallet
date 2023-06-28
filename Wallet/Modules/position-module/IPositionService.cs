@@ -4,6 +4,6 @@ namespace Wallet.Modules.position_module
 {
     public interface IPositionService : IGenericService<Position>
     {
-        Task<List<Position>> Read(string? id);
+        Task<List<PositionDTO>> Read();
     }
 }

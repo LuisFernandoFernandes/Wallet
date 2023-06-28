@@ -30,10 +30,15 @@ namespace Wallet.Modules.trade_module
             _positionService = positionService;
 
             //Criar Triggers genéricos, o position precisa ser recalculado a cada alteração em trade.
-            BeforeInsert = async (obj) => { if (obj.Type == eTradeType.Sell) obj.Amount = obj.Amount * -1; };
+            BeforeInsert = async (obj) => { InitBeforeInsert(obj); };
             AfterInsert = async (obj) => { await InitAfterInsert(obj); };
         }
         #endregion
+
+        private void InitBeforeInsert(Trade obj)
+        {
+            if (obj.Type == eTradeType.Sell) obj.Amount = obj.Amount * -1;
+        }
 
         private async Task InitAfterInsert(Trade obj)
         {
@@ -52,7 +57,7 @@ namespace Wallet.Modules.trade_module
                     AssetId = obj.AssetId,
                     AveragePrice = obj.Price,
                     UserId = obj.UserId,
-                    Quantity = obj.Amount,
+                    Amount = obj.Amount,
                     TotalBought = obj.Type == eTradeType.Buy ? obj.Amount * obj.Price : 0,
                     TotalSold = obj.Type == eTradeType.Sell ? obj.Amount * obj.Price : 0,
                     TotalGainLoss = 0.0
@@ -61,13 +66,13 @@ namespace Wallet.Modules.trade_module
                 return;
             }
 
-            var newAmount = position.Quantity + obj.Amount; //padronizar a nomenclatura.
-            var newAveragePrice = ((position.Quantity * position.AveragePrice) + (obj.Amount * obj.Price)) / newAmount;
+            var newAmount = position.Amount + obj.Amount; //padronizar a nomenclatura.
+            var newAveragePrice = ((position.Amount * position.AveragePrice) + (obj.Amount * obj.Price)) / newAmount;
             position.AveragePrice = newAveragePrice;
-            position.Quantity = newAmount;
+            position.Amount = newAmount;
             position.TotalBought = obj.Type == eTradeType.Buy ? position.TotalBought + (obj.Amount * obj.Price) : position.TotalBought;
             position.TotalSold = obj.Type == eTradeType.Sell ? position.TotalSold + (obj.Amount * obj.Price) : position.TotalSold;
-            position.TotalGainLoss = position.TotalBought + position.TotalSold + position.Quantity * currentPrice;
+            position.TotalGainLoss = position.TotalBought + position.TotalSold + position.Amount * currentPrice;
 
             await _positionService.UpdateAsync(position, _context);
 

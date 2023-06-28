@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Wallet.Modules.asset_module;
+using Wallet.Modules.user_module;
 using Wallet.Tools.database;
 using Wallet.Tools.generic_module;
 
@@ -7,25 +9,70 @@ namespace Wallet.Modules.position_module
     public class PositionService : GenericService<Position>, IPositionService
     {
         private Context _context;
+        private readonly IUserService _userService;
 
-        public PositionService(Context context)
+        public PositionService(Context context, IUserService userService)
         {
             _context = context;
-
-
+            _userService = userService;
         }
 
-        public async Task<List<Position>> Read(string? id)
+        public async Task<List<PositionDTO>> Read()
         {
-            //var userId = GetLoggedInUserId();
-            //if (id == null) return await _context.Position.AsQueryable().Where(a => a.UserId == userId).ToListAsync();
-            return await _context.Position.AsQueryable().Where(a => a.Id == id).ToListAsync();
+            var userId = _userService.GetLoggedInUserId();
+            var positions = await _context.Position.AsQueryable().Where(a => a.UserId == userId).ToListAsync();
+
+            var positionDTO = new List<PositionDTO>();
+
+            foreach (var position in positions)
+            {
+                var asset = await _context.Asset.AsQueryable().Where(a => a.Id == position.AssetId).FirstOrDefaultAsync();
+
+                positionDTO.Add(new PositionDTO
+                {
+                    AssetName = asset.Description,
+                    Ticker = asset.Ticker,
+                    Amount = position.Amount,
+                    AveragePrice = position.AveragePrice,
+                    Price = asset.Price,
+                    Size = position.Amount * asset.Price,
+                    //RelativeSize deve calcular percentual dessa posição com relação a carteira.
+                    TradeResult = GetTradeResult(position.Amount, position.AveragePrice, asset.Price),
+                    TradeResultPercentage = GetTradeResultPercentage(asset.Price, position.AveragePrice),
+                    TotalBought = position.TotalBought,
+                    TotalSold = position.TotalSold,
+                    Result = position.TotalGainLoss,
+                    ResultPercentage = GetResultPercentage(position, asset)
+                });
+            }
+            return positionDTO;
+        }
+
+        //scheduller para atualizar os valores dos ativos dos usuários logados de tempos em tempos.
+
+
+
+        private double GetTradeResult(double amount, double averagePrice, double price)
+        {
+            return (price - averagePrice) * amount;
+        }
+
+        private double GetTradeResultPercentage(double price, double averagePrice)
+        {
+            return ((price - averagePrice) / averagePrice) * 100;
+        }
+
+        /// <summary>
+        /// (total today + total sold + dividends?)/(total bought) - 1
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        private double GetResultPercentage(Position position, Asset asset)
+        {
+            return ((((position.Amount * asset.Price) + position.TotalSold) / position.TotalBought) - 1) * 100;
         }
 
 
-        //Controlar a posição atual - quantidades e preço médio com o preço atual.
-
-        //Controlar o resultado histórico - Diferença acumulada de ganhos e perdas por posição
 
         /*Controlar os resultados ao passar do tempo - 
          * 
