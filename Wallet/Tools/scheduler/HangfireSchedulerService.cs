@@ -23,15 +23,29 @@ namespace Wallet.Tools.scheduler
         public async Task ScheduleJobs()
         {
             //Os schedulers todos tem dias da semana - pode ser '?' se forem todos, ou um dia específico 'MON' ou intervalo 'MON-FRI'
-            //Os horários também seguiram isso - pode ser '?' ou intervalo definido ou até mesmo específico '*/5 9:30-18 * ? MON-FRI *' nesse caso ele executa
-            //a cada 5 minutos desde que dentro do horário de 9h30 até 18h de segunda a sexta.
+            //Os horários também seguiram isso - pode ser '?' ou intervalo definido ou até mesmo específico '0 */5 9-18 * ? MON-FRI *' nesse caso ele executa
+            //a cada 5 minutos desde que dentro do horário de 9h até 18h de segunda a sexta.
+            //Horários quebrados são mais complexos, mas vou tentar criar algo para calcular
 
-            //Criar uma tabela com os schedulers ID, descrição, tipo, periodo, ativo
-            RecurringJob.AddOrUpdate("w", () => Teste(), $"0 */5 * * * ?");
+            //Criar uma tabela com os schedulers ID, descrição, tipo, periodo, ativo?  $"0 */5 * * * ?"
+
+            var reloadQuotes = new SchedulerDTO() { Type = eSchedulerType.Minute, TypeValue = "5", WeekDayType = eSchedulerWeekDayType.Interval, WeekDayTypeValue = "MON-FRI", HourType = eSchedulerHourType.Interval, HourTypeValue = "8-18" };
+            var reloadQuotes2 = new SchedulerDTO() { Type = eSchedulerType.Minute, TypeValue = "2", WeekDayType = eSchedulerWeekDayType.Interval, WeekDayTypeValue = "MON-SUN", HourType = eSchedulerHourType.Interval, HourTypeValue = "8-22" };
+            try
+            {
+                RecurringJob.AddOrUpdate("ER", () => ReloadQuotesScheduler(), GetCronExpression(reloadQuotes2));
+                RecurringJob.AddOrUpdate("JJJ", () => Teste2(), GetCronExpression(reloadQuotes2));
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
         }
 
 
-        public async Task Teste()
+        public async Task ReloadQuotesScheduler()
         {
             try
             {
@@ -51,40 +65,84 @@ namespace Wallet.Tools.scheduler
             await Task.CompletedTask;
         }
 
-        public string GetCronExpression(eSchedulerType schedulerType, string value)
+
+
+        public string GetCronExpression(SchedulerDTO schedulerDTO)
         {
-            switch (schedulerType)
+            var cronExpression = String.Empty;
+
+            var isInterval = schedulerDTO.HourType == eSchedulerHourType.Interval ? true : false;
+
+            switch (schedulerDTO.Type)
             {
-                case eSchedulerType.Day:
-                    return $"0 0 0 */{value} * ?";
 
-                case eSchedulerType.Hour:
-                    return $"0 0 */{value} * * ?";
-
-                case eSchedulerType.Minute:
-                    return $"0 */{value} * * * ?";
-
+                case eSchedulerType.None:
+                    return cronExpression;
                 case eSchedulerType.Second:
-                    return $"*/{value} * * * * ?";
-
+                    cronExpression = isInterval ? $"*/{schedulerDTO.TypeValue} * {schedulerDTO.HourTypeValue} * * *" : $"*/{schedulerDTO.TypeValue} * * * * *";
+                    break;
+                case eSchedulerType.Minute:
+                    cronExpression = isInterval ? $"0 */{schedulerDTO.TypeValue} {schedulerDTO.HourTypeValue} * * *" : $"0 */{schedulerDTO.TypeValue} * * * *";
+                    break;
+                case eSchedulerType.Hour:
+                    cronExpression = $"0 0 */{schedulerDTO.TypeValue} * * *";
+                    break;
+                case eSchedulerType.Day:
+                    cronExpression = $"0 0 0 */{schedulerDTO.TypeValue} * *";
+                    break;
                 case eSchedulerType.Fixed:
-                    int interval;
-                    if (int.TryParse(value, out interval))
-                    {
-                        return $"0 0/{interval} * * * ?";
-                    }
-                    else
-                    {
-                        return null;
-                    }
-
-                case eSchedulerType.CronExpression:
-                    return value;
-
-                default:
-                    return null;
+                    cronExpression = $"0 {schedulerDTO.TypeValue} * * *";
+                    break;
             }
+
+            switch (schedulerDTO.WeekDayType)
+            {
+                case eSchedulerWeekDayType.All:
+                    break;
+                case eSchedulerWeekDayType.Fixed:
+                case eSchedulerWeekDayType.Interval:
+                    cronExpression = cronExpression.Substring(0, cronExpression.LastIndexOf('*')) + schedulerDTO.WeekDayTypeValue;
+                    break;
+            }
+
+            return cronExpression;
         }
+
+
+        //public string GetCronExpression2(eSchedulerType schedulerType, string value)
+        //{
+        //    switch (schedulerType)
+        //    {
+        //        case eSchedulerType.Day:
+        //            return $"0 0 0 */{value} * *";
+
+        //        case eSchedulerType.Hour:
+        //            return $"0 0 */{value} * * *";
+
+        //        case eSchedulerType.Minute:
+        //            return $"0 */{value} * * * *";
+
+        //        case eSchedulerType.Second:
+        //            return $"*/{value} * * * * *";
+
+        //        case eSchedulerType.Fixed:
+        //            int interval;
+        //            if (int.TryParse(value, out interval))
+        //            {
+        //                return $"0 0/{interval} * * * ?";
+        //            }
+        //            else
+        //            {
+        //                return null;
+        //            }
+
+        //        case eSchedulerType.CronExpression:
+        //            return value;
+
+        //        default:
+        //            return null;
+        //    }
+        //}
 
     }
 
