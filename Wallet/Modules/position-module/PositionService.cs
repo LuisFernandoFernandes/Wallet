@@ -24,9 +24,19 @@ namespace Wallet.Modules.position_module
 
             var positionDTO = new List<PositionDTO>();
 
+            var totalPortfolioValue = 0.0;
+
             foreach (var position in positions)
             {
                 var asset = await _context.Asset.AsQueryable().Where(a => a.Id == position.AssetId).FirstOrDefaultAsync();
+                totalPortfolioValue += position.Amount * asset.Price;
+            }
+
+            foreach (var position in positions)
+            {
+                var asset = await _context.Asset.AsQueryable().Where(a => a.Id == position.AssetId).FirstOrDefaultAsync();
+
+                var relativeSize = (position.Amount * asset.Price / totalPortfolioValue) * 100;
 
                 positionDTO.Add(new PositionDTO
                 {
@@ -36,7 +46,7 @@ namespace Wallet.Modules.position_module
                     AveragePrice = position.AveragePrice,
                     Price = asset.Price,
                     Size = position.Amount * asset.Price,
-                    //RelativeSize deve calcular percentual dessa posição com relação a carteira.
+                    RelativeSize = relativeSize,
                     TradeResult = GetTradeResult(position.Amount, position.AveragePrice, asset.Price),
                     TradeResultPercentage = GetTradeResultPercentage(asset.Price, position.AveragePrice),
                     TotalBought = position.TotalBought,
@@ -47,6 +57,7 @@ namespace Wallet.Modules.position_module
             }
             return positionDTO;
         }
+
 
         //scheduller para atualizar os valores dos ativos dos usuários logados de tempos em tempos.
 

@@ -41,5 +41,9 @@ namespace Wallet.Modules.user_module
         [Column("IsEmailConfirmed")]
         [Display(Name = "IsEmailConfirmed")]
         public bool IsEmailConfirmed { get; set; } = false;
+
+        //[Column("IsEmailConfirmed")]
+        //[Display(Name = "IsEmailConfirmed")]
+        //public bool IsEmailConfirmed { get; set; } = false;
     }
 }

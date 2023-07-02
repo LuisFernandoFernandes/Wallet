@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Web.Http.ModelBinding;
 using Wallet.Tools.database;
 using Wallet.Tools.generic_module;
+using Wallet.Tools.scheduler;
 using Wallet.Tools.validation_dictionary;
 
 namespace Wallet.Modules.user_module
@@ -20,15 +21,17 @@ namespace Wallet.Modules.user_module
         private Context _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHangfireSchedulerService _hangfireSchedulerService;
         ModelStateDictionary modelState = new ModelStateDictionary();
         #endregion
 
         #region Construtor
-        public UserService(Context context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public UserService(Context context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IHangfireSchedulerService hangfireSchedulerService)
         {
             _context = context;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _hangfireSchedulerService = hangfireSchedulerService;
         }
 
         #endregion
@@ -193,6 +196,8 @@ namespace Wallet.Modules.user_module
 
             string token = CreateToken(user);
             // await _sessionControlService.RegisterLogin(user);
+
+            _hangfireSchedulerService.ScheduleJobs();
             return token;
         }
 

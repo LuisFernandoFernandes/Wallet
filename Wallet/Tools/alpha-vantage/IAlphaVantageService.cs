@@ -1,7 +1,10 @@
-﻿namespace Wallet.Tools.alpha_vantage
+﻿using Wallet.Modules.asset_module;
+
+namespace Wallet.Tools.alpha_vantage
 {
     public interface IAlphaVantageService
     {
-        Task<decimal> GetStockQuote(string symbol);
+        Task ReloadStockQuotes();
+        Task<double> GetStockQuote(string symbol);
     }
 }

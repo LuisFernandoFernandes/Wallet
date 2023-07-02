@@ -8,6 +8,7 @@
         public double AveragePrice { get; set; }
         public double Price { get; set; }
         public double Size { get; set; }
+        public double RelativeSize { get; set; }
         public double TradeResult { get; set; }
         public double TradeResultPercentage { get; set; }
         public double TotalBought { get; set; }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Web.Http.ModelBinding;
+using Wallet.Tools.alpha_vantage;
 using Wallet.Tools.database;
 using Wallet.Tools.generic_module;
 using Wallet.Tools.validation_dictionary;
@@ -11,8 +12,7 @@ namespace Wallet.Modules.asset_module
         #region Variáveis
         private IValidationDictionary _validatonDictionary;
         private Context _context;
-
-
+        private readonly IAlphaVantageService _alphaVantageService;
         ModelStateDictionary modelState = new ModelStateDictionary();
         #endregion
 
@@ -20,8 +20,6 @@ namespace Wallet.Modules.asset_module
         public AssetService(Context context)
         {
             _context = context;
-            //_validatonDictionary = validatonDictionary;
-            //_repository = repository;
         }
 
         #endregion
@@ -83,7 +81,7 @@ namespace Wallet.Modules.asset_module
         private string FixTicker(string ticker)
         {
             ticker = ticker.ToUpper();
-            return (char.IsNumber(ticker[ticker.Length - 1])) ? ticker + ".SA" : ticker;
+            return (char.IsNumber(ticker[ticker.Length - 1])) ? ticker + ".SAO" : ticker;
         }
 
         private async Task InsertOrUpdate(Asset asset)
@@ -118,6 +116,11 @@ namespace Wallet.Modules.asset_module
         private async Task Save()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task SetStockQuote(List<Asset> assets)
+        {
+            await UpdateAsync(assets, _context);
         }
     }
 }

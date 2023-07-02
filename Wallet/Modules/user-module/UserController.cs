@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Wallet.Tools.database;
+using Wallet.Tools.scheduler;
 using Wallet.Tools.session_control;
 
 namespace Wallet.Modules.user_module
@@ -15,16 +16,18 @@ namespace Wallet.Modules.user_module
         private Context _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHangfireSchedulerService _hangfireSchedulerService;
         private IUserService _service;
         #endregion
 
         #region Constructor
-        public UserController(Context context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public UserController(Context context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IHangfireSchedulerService hangfireSchedulerService)
         {
             _context = context;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
-            _service = new UserService(context, configuration, httpContextAccessor);
+            _hangfireSchedulerService = hangfireSchedulerService;
+            _service = new UserService(context, configuration, httpContextAccessor, hangfireSchedulerService);
         }
         #endregion
 

@@ -43,8 +43,24 @@ namespace Wallet.Tools.generic_module
 
         public async Task InsertAsync(T[] obj, Context context)
         {
+            if (BeforeInsert != null)
+            {
+                foreach (var item in obj)
+                {
+                    await BeforeInsert.Invoke(item);
+                }
+            }
+
             context.Add(obj);
             await context.SaveChangesAsync();
+
+            if (AfterInsert != null)
+            {
+                foreach (var item in obj)
+                {
+                    await AfterInsert.Invoke(item);
+                }
+            }
         }
 
         public async Task UpdateAsync(List<T> obj, Context context)
