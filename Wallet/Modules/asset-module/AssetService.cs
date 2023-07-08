@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Web.Http.ModelBinding;
+using Wallet.Modules.asset_module.enums;
 using Wallet.Tools.alpha_vantage;
 using Wallet.Tools.database;
 using Wallet.Tools.generic_module;
@@ -17,9 +18,10 @@ namespace Wallet.Modules.asset_module
         #endregion
 
         #region Construtor
-        public AssetService(Context context)
+        public AssetService(Context context, IAlphaVantageService alphaVantageService)
         {
             _context = context;
+            _alphaVantageService = alphaVantageService;
         }
 
         #endregion
@@ -50,11 +52,19 @@ namespace Wallet.Modules.asset_module
 
         public async Task<Asset> Creat(Asset asset)
         {
-            asset.Ticker = FixTicker(asset.Ticker);
+            asset.Ticker = GetFixedTicker(asset);
+            if (!await TickerExists(asset.Ticker)) throw new ArgumentException("Ativo não foi encontrado.");
             if (await _context.Asset.AnyAsync(a => a.Ticker == asset.Ticker && a.Class == asset.Class)) throw new ArgumentNullException("Ativo já cadastrado.");
             await InsertOrUpdate(asset);
             return asset;
         }
+
+        private async Task<bool> TickerExists(string ticker)
+        {
+            var searchList = await _alphaVantageService.SearchTicker(ticker);
+            return searchList.Any(item => string.Equals(item.Symbol, ticker, StringComparison.OrdinalIgnoreCase));
+        }
+
 
         public async Task<Asset> Update(string id, Asset asset)
         {
@@ -78,10 +88,16 @@ namespace Wallet.Modules.asset_module
         }
 
 
-        private string FixTicker(string ticker)
+        private string GetFixedTicker(Asset asset)
         {
-            ticker = ticker.ToUpper();
-            return (char.IsNumber(ticker[ticker.Length - 1])) ? ticker + ".SAO" : ticker;
+            var fixedTicker = asset.Ticker.ToUpper();
+
+            if (asset.Class == eAssetClass.Acao || asset.Class == eAssetClass.Fii || asset.Class == eAssetClass.EtfBrasil || asset.Class == eAssetClass.Bdr)
+            {
+                fixedTicker = fixedTicker + ".SAO";
+            }
+
+            return fixedTicker;
         }
 
         private async Task InsertOrUpdate(Asset asset)

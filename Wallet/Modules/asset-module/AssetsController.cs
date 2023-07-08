@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Wallet.Tools.alpha_vantage;
 using Wallet.Tools.database;
 
 namespace Wallet.Modules.asset_module
@@ -10,15 +11,16 @@ namespace Wallet.Modules.asset_module
     {
         #region Variables
         private Context _context;
+        private readonly IAlphaVantageService _alphaVantageService;
         private IAssetService _service;
         #endregion
 
         #region Constructor
-        public AssetsController(Context context)
+        public AssetsController(Context context, IAlphaVantageService alphaVantageService)
         {
             _context = context;
-            _service = new AssetService(_context);
-            //new ModelStateWrapper(ModelState), new AssetRepository(_context.Asset));
+            _alphaVantageService = alphaVantageService;
+            _service = new AssetService(_context, alphaVantageService);
         }
         #endregion
 
