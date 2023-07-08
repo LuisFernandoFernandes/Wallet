@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using System.Net;
 using Wallet.Modules.asset_module;
 using Wallet.Tools.database;
 
@@ -47,7 +48,6 @@ namespace Wallet.Tools.alpha_vantage
         {
             string apiKey = _configuration["AlphaVantage:ApiKey"];
 
-            // Construa a URL da API Alpha Vantage com base no símbolo do ativo e na sua API key
             string apiUrl = $"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={apiKey}";
 
             // Faça a chamada à API Alpha Vantage
@@ -63,5 +63,35 @@ namespace Wallet.Tools.alpha_vantage
         }
 
         // Implemente outros métodos para obter informações adicionais da API Alpha Vantage
+
+
+
+        private void SearchTicker(string symbol)
+        {
+            string apiKey = _configuration["AlphaVantage:ApiKey"];
+
+            string queryUrl = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={symbol}&apikey={apiKey}";
+            Uri queryUri = new Uri(queryUrl);
+
+            using (WebClient client = new WebClient())
+            {
+                // -------------------------------------------------------------------------
+                // if using .NET Framework (System.Web.Script.Serialization)
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                dynamic json_data = js.Deserialize(client.DownloadString(queryUri), typeof(object));
+
+                // -------------------------------------------------------------------------
+                // if using .NET Core (System.Text.Json)
+                // using .NET Core libraries to parse JSON is more complicated. For an informative blog post
+                // https://devblogs.microsoft.com/dotnet/try-the-new-system-text-json-apis/
+
+                dynamic json_data = JsonSerializer.Deserialize<Dictionary<string, dynamic>>(client.DownloadString(queryUri));
+
+                // -------------------------------------------------------------------------
+
+                // do something with the json_data
+            }
+        }
     }
 }
