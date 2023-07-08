@@ -11,13 +11,13 @@ namespace Wallet.Tools.scheduler
     {
         private readonly Context _context;
         private readonly IBackgroundJobClient _backgroundJobClient;
-        private readonly IAlphaVantageService _alphaVantageService;
+        private readonly IAssetService _assetService;
 
-        public HangfireSchedulerService(Context context, IBackgroundJobClient backgroundJobClient, IAlphaVantageService alphaVantageService)
+        public HangfireSchedulerService(Context context, IBackgroundJobClient backgroundJobClient, IAssetService assetService)
         {
             _context = context;
             _backgroundJobClient = backgroundJobClient;
-            _alphaVantageService = alphaVantageService;
+            _assetService = assetService;
         }
 
         public async Task ScheduleJobs()
@@ -49,7 +49,7 @@ namespace Wallet.Tools.scheduler
         {
             try
             {
-                await _alphaVantageService.ReloadStockQuotes();
+                await _assetService.ReloadStockQuotes();
                 await Task.CompletedTask;
             }
             catch (Exception)

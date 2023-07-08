@@ -4,7 +4,6 @@ namespace Wallet.Tools.alpha_vantage
 {
     public interface IAlphaVantageService
     {
-        Task ReloadStockQuotes();
         Task<double> GetStockQuote(string symbol);
         Task<List<SearchResult>> SearchTicker(string symbol);
     }

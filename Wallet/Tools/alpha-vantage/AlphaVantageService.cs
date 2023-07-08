@@ -12,37 +12,13 @@ namespace Wallet.Tools.alpha_vantage
         private readonly Context _context;
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-        private readonly IAssetService _assetService;
 
-        public AlphaVantageService(Context context, HttpClient httpClient, IConfiguration configuration, IAssetService assetService)
+        public AlphaVantageService(Context context, HttpClient httpClient, IConfiguration configuration)
         {
             _context = context;
             _httpClient = httpClient;
             _configuration = configuration;
-            _assetService = assetService;
         }
-
-        public async Task ReloadStockQuotes()
-        {
-            var assets = await _context.Asset.AsQueryable().Join(_context.Position, asset => asset.Id, position => position.AssetId, (asset, position) => asset).Distinct().ToListAsync();
-            foreach (var asset in assets)
-            {
-                try
-                {
-                    var stockQuote = await GetStockQuote(asset.Ticker);
-                    asset.Price = stockQuote;
-                }
-                catch (Exception)
-                {
-
-                    continue;
-                }
-
-            }
-
-            await _assetService.SetStockQuote(assets);
-        }
-
 
         public async Task<double> GetStockQuote(string symbol)
         {
@@ -65,33 +41,44 @@ namespace Wallet.Tools.alpha_vantage
         // Implemente outros métodos para obter informações adicionais da API Alpha Vantage
 
 
-
-        private void SearchTicker(string symbol)
+        /// <summary>
+        /// Return a list of tickers that correspond to a search.
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        public async Task<List<SearchResult>> SearchTicker(string symbol)
         {
             string apiKey = _configuration["AlphaVantage:ApiKey"];
 
-            string queryUrl = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={symbol}&apikey={apiKey}";
-            Uri queryUri = new Uri(queryUrl);
+            string queryUrl = $"https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={symbol}&apikey={apiKey}";
 
-            using (WebClient client = new WebClient())
+            HttpResponseMessage response = await _httpClient.GetAsync(queryUrl);
+            response.EnsureSuccessStatusCode();
+
+            var responseData = await response.Content.ReadAsStringAsync();
+            var jsonData = JObject.Parse(responseData)["bestMatches"];
+
+            List<SearchResult> searchResults = new List<SearchResult>();
+            foreach (var item in jsonData)
             {
-                // -------------------------------------------------------------------------
-                // if using .NET Framework (System.Web.Script.Serialization)
+                SearchResult result = new SearchResult
+                {
+                    Symbol = item["1. symbol"].ToString(),
+                    Name = item["2. name"].ToString(),
+                    Type = item["3. type"].ToString(),
+                    Region = item["4. region"].ToString(),
+                    MarketOpen = item["5. marketOpen"].ToString(),
+                    MarketClose = item["6. marketClose"].ToString(),
+                    Timezone = item["7. timezone"].ToString(),
+                    Currency = item["8. currency"].ToString(),
+                    MatchScore = double.Parse(item["9. matchScore"].ToString(), CultureInfo.InvariantCulture)
+                };
 
-                JavaScriptSerializer js = new JavaScriptSerializer();
-                dynamic json_data = js.Deserialize(client.DownloadString(queryUri), typeof(object));
-
-                // -------------------------------------------------------------------------
-                // if using .NET Core (System.Text.Json)
-                // using .NET Core libraries to parse JSON is more complicated. For an informative blog post
-                // https://devblogs.microsoft.com/dotnet/try-the-new-system-text-json-apis/
-
-                dynamic json_data = JsonSerializer.Deserialize<Dictionary<string, dynamic>>(client.DownloadString(queryUri));
-
-                // -------------------------------------------------------------------------
-
-                // do something with the json_data
+                searchResults.Add(result);
             }
+
+            return searchResults;
         }
+
     }
 }

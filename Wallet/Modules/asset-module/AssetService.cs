@@ -134,6 +134,27 @@ namespace Wallet.Modules.asset_module
             await _context.SaveChangesAsync();
         }
 
+        public async Task ReloadStockQuotes()
+        {
+            var assets = await _context.Asset.AsQueryable().Join(_context.Position, asset => asset.Id, position => position.AssetId, (asset, position) => asset).Distinct().ToListAsync();
+            foreach (var asset in assets)
+            {
+                try
+                {
+                    var stockQuote = await _alphaVantageService.GetStockQuote(asset.Ticker);
+                    asset.Price = stockQuote;
+                }
+                catch (Exception)
+                {
+
+                    continue;
+                }
+
+            }
+
+            await SetStockQuote(assets);
+        }
+
         public async Task SetStockQuote(List<Asset> assets)
         {
             await UpdateAsync(assets, _context);

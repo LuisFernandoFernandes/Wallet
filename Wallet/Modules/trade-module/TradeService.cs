@@ -15,7 +15,6 @@ namespace Wallet.Modules.trade_module
     {
         #region Variables
         private IValidationDictionary _validatonDictionary;
-        private TradeRepository _repository;
         private Context _context;
         private IUserService _userService;
         private readonly IPositionService _positionService;
