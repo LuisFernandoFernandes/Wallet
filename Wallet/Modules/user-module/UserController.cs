@@ -21,13 +21,12 @@ namespace Wallet.Modules.user_module
         #endregion
 
         #region Constructor
-        public UserController(Context context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IHangfireSchedulerService hangfireSchedulerService)
+        public UserController(Context context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
-            _hangfireSchedulerService = hangfireSchedulerService;
-            _service = new UserService(context, configuration, httpContextAccessor, hangfireSchedulerService);
+            _service = new UserService(context, configuration, httpContextAccessor);
         }
         #endregion
 

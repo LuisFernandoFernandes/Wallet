@@ -15,5 +15,6 @@ namespace Wallet.Modules.user_module
         public string Password { get; set; }
 
         public string CPF { get; set; }
+        public eRole Role { get; set; } = eRole.User;
     }
 }

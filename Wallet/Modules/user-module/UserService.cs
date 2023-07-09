@@ -21,17 +21,15 @@ namespace Wallet.Modules.user_module
         private Context _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IHangfireSchedulerService _hangfireSchedulerService;
         ModelStateDictionary modelState = new ModelStateDictionary();
         #endregion
 
         #region Construtor
-        public UserService(Context context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IHangfireSchedulerService hangfireSchedulerService)
+        public UserService(Context context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
-            _hangfireSchedulerService = hangfireSchedulerService;
         }
 
         #endregion
@@ -49,7 +47,8 @@ namespace Wallet.Modules.user_module
                 Email = userDto.Email,
                 CPF = userDto.CPF,
                 PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt
+                PasswordSalt = passwordSalt,
+                Role = userDto.Role
             };
 
             await InsertOrUpdate(user);
@@ -196,8 +195,6 @@ namespace Wallet.Modules.user_module
 
             string token = CreateToken(user);
             // await _sessionControlService.RegisterLogin(user);
-
-            _hangfireSchedulerService.ScheduleJobs();
             return token;
         }
 
@@ -437,7 +434,8 @@ namespace Wallet.Modules.user_module
                     Password = "1234",
                     Name = "Luís Fernando Garcia Fernandes",
                     Email = "l.fernando@protonmail.com",
-                    CPF = "40526460881"
+                    CPF = "40526460881",
+                    Role = eRole.Admin
                 },
                 // Adicione outros usuários à lista
             };
