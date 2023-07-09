@@ -29,12 +29,12 @@ namespace Wallet.Tools.scheduler
 
             //Criar uma tabela com os schedulers ID, descrição, tipo, periodo, ativo?  $"0 */5 * * * ?"
 
-            var reloadQuotes = new SchedulerDTO() { Type = eSchedulerType.Minute, TypeValue = "5", WeekDayType = eSchedulerWeekDayType.Interval, WeekDayTypeValue = "MON-FRI", HourType = eSchedulerHourType.Interval, HourTypeValue = "8-18" };
-            var reloadQuotes2 = new SchedulerDTO() { Type = eSchedulerType.Minute, TypeValue = "2", WeekDayType = eSchedulerWeekDayType.Interval, WeekDayTypeValue = "MON-SUN", HourType = eSchedulerHourType.Interval, HourTypeValue = "8-22" };
+            //var reloadQuotes = new SchedulerDTO() { Type = eSchedulerType.Minute, TypeValue = "5", WeekDayType = eSchedulerWeekDayType.Interval, WeekDayTypeValue = "MON-FRI", HourType = eSchedulerHourType.Interval, HourTypeValue = "8-18" };
+            var reloadQuotes = new SchedulerDTO() { Type = eSchedulerType.Minute, TypeValue = "2", WeekDayType = eSchedulerWeekDayType.Interval, WeekDayTypeValue = "MON-SUN", HourType = eSchedulerHourType.Interval, HourTypeValue = "8-22" };
             try
             {
-                RecurringJob.AddOrUpdate("ER", () => ReloadQuotesScheduler(), GetCronExpression(reloadQuotes2));
-                RecurringJob.AddOrUpdate("JJJ", () => Teste2(), GetCronExpression(reloadQuotes2));
+                var count = 0;
+                RecurringJob.AddOrUpdate(count++.ToString(), () => ReloadQuotesScheduler(), GetCronExpression(reloadQuotes));
             }
             catch (Exception)
             {
@@ -59,13 +59,6 @@ namespace Wallet.Tools.scheduler
             }
 
         }
-
-        public async Task Teste2()
-        {
-            await Task.CompletedTask;
-        }
-
-
 
         public string GetCronExpression(SchedulerDTO schedulerDTO)
         {
@@ -107,43 +100,5 @@ namespace Wallet.Tools.scheduler
 
             return cronExpression;
         }
-
-
-        //public string GetCronExpression2(eSchedulerType schedulerType, string value)
-        //{
-        //    switch (schedulerType)
-        //    {
-        //        case eSchedulerType.Day:
-        //            return $"0 0 0 */{value} * *";
-
-        //        case eSchedulerType.Hour:
-        //            return $"0 0 */{value} * * *";
-
-        //        case eSchedulerType.Minute:
-        //            return $"0 */{value} * * * *";
-
-        //        case eSchedulerType.Second:
-        //            return $"*/{value} * * * * *";
-
-        //        case eSchedulerType.Fixed:
-        //            int interval;
-        //            if (int.TryParse(value, out interval))
-        //            {
-        //                return $"0 0/{interval} * * * ?";
-        //            }
-        //            else
-        //            {
-        //                return null;
-        //            }
-
-        //        case eSchedulerType.CronExpression:
-        //            return value;
-
-        //        default:
-        //            return null;
-        //    }
-        //}
-
     }
-
 }
