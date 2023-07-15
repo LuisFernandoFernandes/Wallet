@@ -40,7 +40,8 @@ namespace Wallet.Tools.scheduler
             {
                 var count = 0;
                 RecurringJob.AddOrUpdate(count++.ToString(), () => ReloadQuotesScheduler(), GetCronExpression(reloadQuotes));
-                BackgroundJob.Enqueue(count++.ToString(), () => UserSeedData());
+
+                BackgroundJob.Enqueue(() => UserSeedData());
             }
             catch (Exception)
             {
@@ -106,7 +107,7 @@ namespace Wallet.Tools.scheduler
             }
         }
 
-        public async Task<string> UserSeedData()
+        public async Task UserSeedData()
         {
             var users = new List<UserDTO>()
             {
@@ -126,7 +127,6 @@ namespace Wallet.Tools.scheduler
                 if (await _context.User.AsQueryable().AnyAsync(a => a.UserName == user.UserName || a.Email == user.Email || a.CPF == user.CPF)) continue;
                 await _userService.Create(user);
             }
-            return string.Empty;
         }
     }
 }
