@@ -12,6 +12,5 @@ namespace Wallet.Modules.user_module
         string CreateRandomCpf();
         Task ConfirmEmail(string code);
         string GetLoggedInUserId();
-        Task<string> CreateSeedData();
     }
 }

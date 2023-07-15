@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
+using Wallet.Modules.adm_module;
 using Wallet.Modules.asset_module;
 using Wallet.Modules.position_module;
 using Wallet.Modules.trade_module;
@@ -50,6 +51,7 @@ builder.Services.AddScoped<IPositionService, PositionService>();
 builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<IAlphaVantageService, AlphaVantageService>();
 builder.Services.AddScoped<IHangfireSchedulerService, HangfireSchedulerService>();
+builder.Services.AddScoped<IAdmService, AdmService>();
 #endregion
 
 builder.Services.AddEndpointsApiExplorer();
