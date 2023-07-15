@@ -423,28 +423,5 @@ namespace Wallet.Modules.user_module
             var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return userId;
         }
-
-        public async Task<string> CreateSeedData()
-        {
-            var users = new List<UserDTO>()
-            {
-                new UserDTO
-                {
-                    UserName = "LF",
-                    Password = "1234",
-                    Name = "Luís Fernando Garcia Fernandes",
-                    Email = "l.fernando@protonmail.com",
-                    CPF = "40526460881",
-                    Role = eRole.Admin
-                },
-                // Adicione outros usuários à lista
-            };
-            foreach (var user in users)
-            {
-                if (await _context.User.AsQueryable().AnyAsync(a => a.UserName == user.UserName || a.Email == user.Email || a.CPF == user.CPF)) continue;
-                await Create(user);
-            }
-            return string.Empty;
-        }
     }
 }

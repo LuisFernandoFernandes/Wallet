@@ -12,7 +12,7 @@ namespace Wallet.Modules.user_module
     [Authorize]
     public class UserController : ControllerBase
     {
-        #region Variables
+        #region Vars
         private Context _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -30,27 +30,6 @@ namespace Wallet.Modules.user_module
         }
         #endregion
 
-
-        #region CreateSeedData
-        [HttpPost("seeddata"), AllowAnonymous]
-        public async Task<ActionResult<string>> CreateSeedData()
-        {
-            try
-            {
-                var response = await _service.CreateSeedData();
-                return Ok(response);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message);
-                //return Problem("Algo deu errado, contate o administrador.");
-            }
-        }
-        #endregion
 
 
 
@@ -159,8 +138,6 @@ namespace Wallet.Modules.user_module
             }
         }
         #endregion
-
-
 
         [HttpGet("gerarcpf"), AllowAnonymous]
         public ActionResult<string> GerarCpf()

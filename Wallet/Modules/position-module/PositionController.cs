@@ -10,7 +10,7 @@ namespace Wallet.Modules.position_module
     [Route("position")]
     public class PositionController : ControllerBase
     {
-        #region Variables
+        #region Vars
         private Context _context;
         private IPositionService _service;
         private IUserService _userService;

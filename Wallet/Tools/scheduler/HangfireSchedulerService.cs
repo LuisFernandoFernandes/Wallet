@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Wallet.Modules.asset_module;
 using Wallet.Modules.user_module;
@@ -12,12 +13,14 @@ namespace Wallet.Tools.scheduler
         private readonly Context _context;
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IAssetService _assetService;
+        private readonly IUserService _userService;
 
-        public HangfireSchedulerService(Context context, IBackgroundJobClient backgroundJobClient, IAssetService assetService)
+        public HangfireSchedulerService(Context context, IBackgroundJobClient backgroundJobClient, IAssetService assetService, IUserService userService)
         {
             _context = context;
             _backgroundJobClient = backgroundJobClient;
             _assetService = assetService;
+            _userService = userService;
         }
 
         public async Task ScheduleJobs()
@@ -30,32 +33,19 @@ namespace Wallet.Tools.scheduler
             //Criar uma tabela com os schedulers ID, descrição, tipo, periodo, ativo?  $"0 */5 * * * ?"
 
             //var reloadQuotes = new SchedulerDTO() { Type = eSchedulerType.Minute, TypeValue = "5", WeekDayType = eSchedulerWeekDayType.Interval, WeekDayTypeValue = "MON-FRI", HourType = eSchedulerHourType.Interval, HourTypeValue = "8-18" };
+
             var reloadQuotes = new SchedulerDTO() { Type = eSchedulerType.Minute, TypeValue = "2", WeekDayType = eSchedulerWeekDayType.Interval, WeekDayTypeValue = "MON-SUN", HourType = eSchedulerHourType.Interval, HourTypeValue = "8-22" };
+
             try
             {
                 var count = 0;
                 RecurringJob.AddOrUpdate(count++.ToString(), () => ReloadQuotesScheduler(), GetCronExpression(reloadQuotes));
+                BackgroundJob.Enqueue(count++.ToString(), () => UserSeedData());
             }
             catch (Exception)
             {
 
                 throw;
-            }
-
-        }
-
-
-        public async Task ReloadQuotesScheduler()
-        {
-            try
-            {
-                await _assetService.ReloadStockQuotes();
-                await Task.CompletedTask;
-            }
-            catch (Exception)
-            {
-
-                await Task.CompletedTask;
             }
 
         }
@@ -99,6 +89,44 @@ namespace Wallet.Tools.scheduler
             }
 
             return cronExpression;
+        }
+
+
+        public async Task ReloadQuotesScheduler()
+        {
+            try
+            {
+                await _assetService.ReloadStockQuotes();
+                await Task.CompletedTask;
+            }
+            catch (Exception)
+            {
+
+                await Task.CompletedTask;
+            }
+        }
+
+        public async Task<string> UserSeedData()
+        {
+            var users = new List<UserDTO>()
+            {
+                new UserDTO
+                {
+                    UserName = "string",
+                    Password = "string",
+                    Name = "Admin",
+                    Email = "admim@teste.com",
+                    CPF = "11111111111",
+                    Role = eRole.Admin
+                },
+                // Adicione outros usuários à lista
+            };
+            foreach (var user in users)
+            {
+                if (await _context.User.AsQueryable().AnyAsync(a => a.UserName == user.UserName || a.Email == user.Email || a.CPF == user.CPF)) continue;
+                await _userService.Create(user);
+            }
+            return string.Empty;
         }
     }
 }

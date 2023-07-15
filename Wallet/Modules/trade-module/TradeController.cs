@@ -13,7 +13,7 @@ namespace Wallet.Modules.trade_module
     [Authorize]
     public class TradeController : ControllerBase
     {
-        #region Variables
+        #region Vars
         private Context _context;
         private ITradeService _service;
         private IUserService _userService;

@@ -12,13 +12,16 @@ namespace Wallet.Modules.adm_module
     {
 
 
-        #region Variables
+        #region Vars
+        public IAdmService AdmService { get; }
         #endregion
 
         #region Constructor
-        public AdmController()
+        public AdmController(IAdmService admService)
         {
+            AdmService = admService;
         }
+
         #endregion
 
         [HttpPost]

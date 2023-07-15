@@ -9,7 +9,7 @@ namespace Wallet.Modules.asset_module
     [Route("assets")]
     public class AssetsController : ControllerBase
     {
-        #region Variables
+        #region Vars
         private Context _context;
         private readonly IAlphaVantageService _alphaVantageService;
         private IAssetService _service;

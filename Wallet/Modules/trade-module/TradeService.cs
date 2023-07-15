@@ -13,7 +13,7 @@ namespace Wallet.Modules.trade_module
 {
     internal class TradeService : GenericService<Trade>, ITradeService
     {
-        #region Variables
+        #region Vars
         private IValidationDictionary _validatonDictionary;
         private Context _context;
         private IUserService _userService;
