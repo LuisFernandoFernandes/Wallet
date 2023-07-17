@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Wallet.Modules.asset_module;
+using Wallet.Modules.asset_module.enums;
 using Wallet.Modules.user_module;
 using Wallet.Tools.alpha_vantage;
 using Wallet.Tools.database;
@@ -14,13 +15,15 @@ namespace Wallet.Tools.scheduler
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IAssetService _assetService;
         private readonly IUserService _userService;
+        private readonly IAlphaVantageService _alphaVantageService;
 
-        public HangfireSchedulerService(Context context, IBackgroundJobClient backgroundJobClient, IAssetService assetService, IUserService userService)
+        public HangfireSchedulerService(Context context, IBackgroundJobClient backgroundJobClient, IAssetService assetService, IUserService userService, IAlphaVantageService alphaVantageService)
         {
             _context = context;
             _backgroundJobClient = backgroundJobClient;
             _assetService = assetService;
             _userService = userService;
+            _alphaVantageService = alphaVantageService;
         }
 
         public async Task ScheduleJobs()
@@ -36,12 +39,14 @@ namespace Wallet.Tools.scheduler
 
             var reloadQuotes = new SchedulerDTO() { Type = eSchedulerType.Minute, TypeValue = "2", WeekDayType = eSchedulerWeekDayType.Interval, WeekDayTypeValue = "MON-SUN", HourType = eSchedulerHourType.Interval, HourTypeValue = "8-22" };
 
+
             try
             {
                 var count = 0;
                 RecurringJob.AddOrUpdate(count++.ToString(), () => ReloadQuotesScheduler(), GetCronExpression(reloadQuotes));
 
                 BackgroundJob.Enqueue(() => UserSeedData());
+                BackgroundJob.Enqueue(() => USAssetSeedData());
             }
             catch (Exception)
             {
@@ -51,7 +56,7 @@ namespace Wallet.Tools.scheduler
 
         }
 
-        public string GetCronExpression(SchedulerDTO schedulerDTO)
+        private string GetCronExpression(SchedulerDTO schedulerDTO)
         {
             var cronExpression = String.Empty;
 
@@ -127,6 +132,43 @@ namespace Wallet.Tools.scheduler
                 if (await _context.User.AsQueryable().AnyAsync(a => a.UserName == user.UserName || a.Email == user.Email || a.CPF == user.CPF)) continue;
                 await _userService.Create(user);
             }
+        }
+
+        public async Task USAssetSeedData()
+        {
+            try
+            {
+                var allUSAssetsDto = await _alphaVantageService.GetAllUSAssets();
+                var tickerList = allUSAssetsDto.Select(a => a.symbol).ToList();
+
+                var existingTickers = await _context.Asset
+                    .Where(a => tickerList.Contains(a.Ticker))
+                    .Select(a => a.Ticker)
+                    .ToListAsync();
+
+                var newTickers = tickerList.Except(existingTickers);
+                var newAssetDtoList = allUSAssetsDto.Where(a => newTickers.Contains(a.symbol)).ToList();
+
+                var assetList = new List<Asset>();
+
+                foreach (var newAsset in newAssetDtoList)
+                {
+                    var asset = new Asset
+                    {
+                        Ticker = newAsset.symbol,
+                        Class = newAsset.assetType == "Stock" ? eAssetClass.Stock : eAssetClass.EtfExterior,
+                        Description = newAsset.name,
+                    };
+
+                    await _assetService.InsertAsync(asset, _context);
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
         }
     }
 }

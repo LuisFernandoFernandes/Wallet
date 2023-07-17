@@ -6,5 +6,6 @@ namespace Wallet.Tools.alpha_vantage
     {
         Task<double> GetStockQuote(string symbol);
         Task<List<SearchResult>> SearchTicker(string symbol);
+        Task<List<GetAllUSAssetsDTO>> GetAllUSAssets();
     }
 }
