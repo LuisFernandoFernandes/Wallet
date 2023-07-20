@@ -1,0 +1,3 @@
+[submodule "stock_data"]
+	path = stock_data
+	url = https://github.com/LuisFernandoFernandes/stock_data
