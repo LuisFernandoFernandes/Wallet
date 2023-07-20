@@ -76,5 +76,12 @@ namespace Wallet.Tools.alpha_vantage
         public DateTime ExDividendDate { get; set; }
     }
 
+    public class GetMyAssetsDTO
+    {
+        public string AV { get; set; }
+        public string EMPRESA { get; set; }
+        public string LISTA { get; set; }
+    }
+
 
 }

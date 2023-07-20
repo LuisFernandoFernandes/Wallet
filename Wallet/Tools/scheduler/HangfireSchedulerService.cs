@@ -1,5 +1,6 @@
 ﻿using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Wallet.Modules.asset_module;
 using Wallet.Modules.asset_module.enums;
@@ -47,6 +48,7 @@ namespace Wallet.Tools.scheduler
 
                 BackgroundJob.Enqueue(() => UserSeedData());
                 BackgroundJob.Enqueue(() => USAssetSeedData());
+                BackgroundJob.Enqueue(() => MyAssetSeedData());
             }
             catch (Exception)
             {
@@ -169,6 +171,65 @@ namespace Wallet.Tools.scheduler
                 throw;
             }
 
+        }
+
+        public async Task MyAssetSeedData()
+        {
+            string apiEndpoint = "http://localhost:5000/tickers";
+
+            using (HttpClient httpClient = new HttpClient())
+            {
+                try
+                {
+                    HttpResponseMessage response = await httpClient.GetAsync(apiEndpoint);
+                    response.EnsureSuccessStatusCode(); // Verifica se a resposta foi bem-sucedida (status code 2xx)
+
+                    string responseBody = await response.Content.ReadAsStringAsync();
+
+                    // Deserializar o JSON para uma lista de GetMyAssetsDTO
+                    var myAssets = JsonConvert.DeserializeObject<GetMyAssetsDTO[]>(responseBody);
+
+                    // Exibir os dados
+                    foreach (var myAsset in myAssets)
+                    {
+
+                        if (await _context.Asset.AnyAsync(a => a.Ticker == myAsset.AV)) continue;
+
+                        var asset = new Asset();
+
+                        switch (myAsset.LISTA.Trim().ToUpperInvariant())
+                        {
+                            case "AÇÃO":
+                                asset.Class = eAssetClass.Acao; break;
+                            case "ETF":
+                                asset.Class = eAssetClass.EtfBrasil; break;
+                            case "FII":
+                                asset.Class = eAssetClass.Fii; break;
+                            case "BDR":
+                                asset.Class = eAssetClass.Bdr; break;
+                            case "STOCKS":
+                                asset.Class = eAssetClass.Stock; break;
+                            case "ETFUS":
+                                asset.Class = eAssetClass.EtfExterior; break;
+                            case "REIT":
+                                asset.Class = eAssetClass.Reits; break;
+                            case "ADR":
+                                asset.Class = eAssetClass.ADR; break;
+                            default:
+                                continue;
+                        }
+
+                        asset.Ticker = myAsset.AV;
+                        asset.Description = myAsset.EMPRESA;
+
+                        await _assetService.InsertAsync(asset, _context);
+                    }
+                }
+                catch (HttpRequestException e)
+                {
+                    throw new Exception(e.Message);
+                }
+            }
         }
     }
 }
