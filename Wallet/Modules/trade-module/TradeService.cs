@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Security.Claims;
 using System.Web.Http.ModelBinding;
 using Wallet.Modules.asset_module;
@@ -78,15 +80,53 @@ namespace Wallet.Modules.trade_module
             //Criar um scheduler que atualiza o current price dos assets contidos na positions dos user logados, algo assim.
         }
 
+        public async Task<List<Trade>> CreatList(List<TradeDTO> tradeDTOList)
+        {
+            var success = false;
+            var tradeList = new List<Trade>();
+            foreach (var tradeDTO in tradeDTOList)
+            {
+                try
+                {
+                    tradeList.Add(await InitCreat(tradeDTO));
+                    success = true;
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+            if (!success) throw new Exception("Nenhum trade pode ser adicionado."); //arrumar
+            return tradeList;
+        }
+
+
         public async Task<Trade> Creat(TradeDTO tradeDTO)
+        {
+            try
+            {
+                return await InitCreat(tradeDTO);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private async Task<Trade> InitCreat(TradeDTO tradeDTO)
         {
 
             var userid = _userService.GetLoggedInUserId();
+            var assetId = await _context.Asset.AsQueryable().Where(a => a.Ticker == tradeDTO.Ticker).Select(a => a.Id).FirstOrDefaultAsync();
+            if (assetId == null) throw new ArgumentException("Ticker inválido.");
+
+            var date = DateTime.SpecifyKind(DateTime.ParseExact(tradeDTO.Date, "dd/MM/yyyy", CultureInfo.InvariantCulture), DateTimeKind.Utc);
+
             var trade = new Trade()
             {
                 UserId = userid,
-                AssetId = tradeDTO.AssetId,
-                Date = tradeDTO.Date,
+                AssetId = assetId,
+                Date = date,
                 Type = tradeDTO.Type,
                 Amount = tradeDTO.Amount,
                 Price = tradeDTO.Price,
@@ -94,6 +134,8 @@ namespace Wallet.Modules.trade_module
 
             await InsertAsync(trade, _context);
             return trade;
+
+
         }
 
         public async Task<List<Trade>> Read(string? id = null)

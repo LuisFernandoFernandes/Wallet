@@ -30,6 +30,24 @@ namespace Wallet.Modules.trade_module
         }
         #endregion
 
+        [HttpPost("tradelist")]
+        public async Task<ActionResult<string>> CreatList(List<TradeDTO> trades)
+        {
+            try
+            {
+                var response = await _service.CreatList(trades);
+                return Ok(response);
+            }
+            catch (ArgumentNullException)
+            {
+                return NotFound("Movimentações já cadastrado.");
+            }
+            catch (Exception ex)
+            {
+                return Problem("Algo deu errado, contate o administrador. Erro:" + ex);
+            }
+        }
+
 
         #region Creat
         [HttpPost]
@@ -44,9 +62,9 @@ namespace Wallet.Modules.trade_module
             {
                 return NotFound("Movimentação já cadastrado.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Problem("Algo deu errado, contate o administrador.");
+                return Problem("Algo deu errado, contate o administrador. Erro:" + ex);
             }
         }
         #endregion

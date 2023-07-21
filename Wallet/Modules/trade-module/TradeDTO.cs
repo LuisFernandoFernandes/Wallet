@@ -10,11 +10,11 @@ namespace Wallet.Modules.trade_module
 
         public eTradeType Type { get; set; }
 
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
 
-        public string AssetId { get; set; }
+        public string Ticker { get; set; }
 
-        public int Amount { get; set; }
+        public double Amount { get; set; }
 
         public double Price { get; set; }
     }
