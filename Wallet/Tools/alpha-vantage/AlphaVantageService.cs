@@ -13,9 +13,9 @@ namespace Wallet.Tools.alpha_vantage
 {
     public class AlphaVantageService : IAlphaVantageService
     {
-        private const int RequestsPerMinuteLimit = 5;
-        private const int RequestsPerDayLimit = 500;
-        private const int RateLimitResetMinutes = 60;
+        private const int _requestsPerMinuteLimit = 5;
+        private const int _requestsPerDayLimit = 100;
+        private const int _rateLimitResetSeconds = 60;
 
         private readonly Context _context;
         private readonly HttpClient _httpClient;
@@ -40,10 +40,10 @@ namespace Wallet.Tools.alpha_vantage
         private async Task WaitForRateLimit()
         {
             // Verifique se já atingiu o limite de requisições por minuto
-            if (_requestsCountMinute >= RequestsPerMinuteLimit)
+            if (_requestsCountMinute >= _requestsPerMinuteLimit)
             {
                 var elapsedTime = DateTime.UtcNow - _lastRequestTime;
-                var timeToWait = TimeSpan.FromSeconds(RateLimitResetMinutes) - elapsedTime;
+                var timeToWait = TimeSpan.FromSeconds(_rateLimitResetSeconds) - elapsedTime;
 
                 // Espere pelo tempo restante até o próximo intervalo de minutos
                 if (timeToWait > TimeSpan.Zero)
@@ -53,7 +53,7 @@ namespace Wallet.Tools.alpha_vantage
             }
 
             // Verifique se já atingiu o limite de requisições por dia
-            if (_requestsCountDay >= RequestsPerDayLimit)
+            if (_requestsCountDay >= _requestsPerDayLimit)
             {
                 throw new Exception("Limite diário de requisições atingido.");
             }
