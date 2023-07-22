@@ -9,6 +9,5 @@ namespace Wallet.Modules.asset_module
         Task<Asset> Update(string id, Asset asset);
         Task<Asset> Delete(string id);
         Task ReloadStockQuotes();
-        Task SetStockQuote(List<Asset> assets);
     }
 }

@@ -28,7 +28,7 @@ namespace Wallet.Modules.position_module
 
         #region Read
         [HttpGet]
-        public async Task<ActionResult<PositionDTO>> Read()
+        public async Task<ActionResult<List<PositionDTO>>> Read()
         {
             try
             {

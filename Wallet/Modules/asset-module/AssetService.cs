@@ -143,6 +143,7 @@ namespace Wallet.Modules.asset_module
                 {
                     var stockQuote = await _alphaVantageService.GetStockQuote(asset.Ticker);
                     asset.Price = stockQuote;
+                    await UpdateAsync(asset, _context);
                 }
                 catch (Exception)
                 {
@@ -151,13 +152,7 @@ namespace Wallet.Modules.asset_module
                 }
 
             }
-
-            await SetStockQuote(assets);
         }
 
-        public async Task SetStockQuote(List<Asset> assets)
-        {
-            await UpdateAsync(assets, _context);
-        }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Wallet.Modules.asset_module;
 using Wallet.Modules.user_module;
 using Wallet.Tools.database;
@@ -30,13 +32,12 @@ namespace Wallet.Modules.position_module
             {
                 var asset = await _context.Asset.AsQueryable().Where(a => a.Id == position.AssetId).FirstOrDefaultAsync();
                 totalPortfolioValue += position.Amount * asset.Price;
-            }
-
-            foreach (var position in positions)
-            {
-                var asset = await _context.Asset.AsQueryable().Where(a => a.Id == position.AssetId).FirstOrDefaultAsync();
 
                 var relativeSize = (position.Amount * asset.Price / totalPortfolioValue) * 100;
+                relativeSize = double.IsNaN(relativeSize) ? 0 : relativeSize;
+
+                var size = position.Amount * asset.Price;
+                size = double.IsNaN(size) ? 0 : size;
 
                 positionDTO.Add(new PositionDTO
                 {
@@ -45,7 +46,7 @@ namespace Wallet.Modules.position_module
                     Amount = position.Amount,
                     AveragePrice = position.AveragePrice,
                     Price = asset.Price,
-                    Size = position.Amount * asset.Price,
+                    Size = size,
                     RelativeSize = relativeSize,
                     TradeResult = GetTradeResult(position.Amount, position.AveragePrice, asset.Price),
                     TradeResultPercentage = GetTradeResultPercentage(asset.Price, position.AveragePrice),
@@ -55,6 +56,7 @@ namespace Wallet.Modules.position_module
                     ResultPercentage = GetResultPercentage(position, asset)
                 });
             }
+
             return positionDTO;
         }
 

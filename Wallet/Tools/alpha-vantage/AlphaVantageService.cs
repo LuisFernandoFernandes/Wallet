@@ -43,7 +43,7 @@ namespace Wallet.Tools.alpha_vantage
             if (_requestsCountMinute >= RequestsPerMinuteLimit)
             {
                 var elapsedTime = DateTime.UtcNow - _lastRequestTime;
-                var timeToWait = TimeSpan.FromMinutes(RateLimitResetMinutes) - elapsedTime;
+                var timeToWait = TimeSpan.FromSeconds(RateLimitResetMinutes) - elapsedTime;
 
                 // Espere pelo tempo restante até o próximo intervalo de minutos
                 if (timeToWait > TimeSpan.Zero)
