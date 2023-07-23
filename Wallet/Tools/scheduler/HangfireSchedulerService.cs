@@ -44,11 +44,11 @@ namespace Wallet.Tools.scheduler
             try
             {
                 var count = 0;
-                RecurringJob.AddOrUpdate(count++.ToString(), () => ReloadQuotesScheduler(), GetCronExpression(reloadQuotes));
+                //RecurringJob.AddOrUpdate(count++.ToString(), () => ReloadQuotesScheduler(), GetCronExpression(reloadQuotes));
 
-                BackgroundJob.Enqueue(() => UserSeedData());
-                BackgroundJob.Enqueue(() => USAssetSeedData());
-                BackgroundJob.Enqueue(() => MyAssetSeedData());
+                //BackgroundJob.Enqueue(() => UserSeedData());
+                //BackgroundJob.Enqueue(() => USAssetSeedData());
+                //BackgroundJob.Enqueue(() => MyAssetSeedData());
             }
             catch (Exception)
             {

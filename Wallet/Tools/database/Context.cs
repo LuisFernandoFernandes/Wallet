@@ -23,6 +23,7 @@ namespace Wallet.Tools.database
 
         #region DbSet
         public DbSet<Asset> Asset { get; set; }
+        public DbSet<AssetHistoricalData> AssetHistoricalData { get; set; }
         public DbSet<Trade> Trade { get; set; }
         public DbSet<Position> Position { get; set; }
         public DbSet<User> User { get; set; }

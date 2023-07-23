@@ -262,5 +262,48 @@ namespace Wallet.Tools.alpha_vantage
             }
             return companyOverviews;
         }
+
+        public async Task<List<HistoricalDataDTO>> GetHistoricalData(string symbol)
+        {
+            await WaitForRateLimit();
+
+            string apiUrl = $"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={symbol}&apikey={_apiKey}";
+
+            HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
+            UpdateRequestsCount();
+            response.EnsureSuccessStatusCode();
+
+            var responseData = await response.Content.ReadAsStringAsync();
+            var jsonData = JObject.Parse(responseData);
+
+            var timeSeriesData = jsonData["Time Series (Daily)"];
+
+            if (timeSeriesData == null)
+            {
+                throw new Exception("Dados históricos não encontrados.");
+            }
+
+            List<HistoricalDataDTO> historicalDataList = new List<HistoricalDataDTO>();
+
+            foreach (var dailyData in timeSeriesData.Children())
+            {
+                var historicalData = new HistoricalDataDTO
+                {
+                    Date = DateTime.Parse(dailyData.Path),
+                    Open = double.Parse(dailyData["1. open"].ToString(), CultureInfo.InvariantCulture),
+                    High = double.Parse(dailyData["2. high"].ToString(), CultureInfo.InvariantCulture),
+                    Low = double.Parse(dailyData["3. low"].ToString(), CultureInfo.InvariantCulture),
+                    Close = double.Parse(dailyData["4. close"].ToString(), CultureInfo.InvariantCulture),
+                    AdjustedClose = double.Parse(dailyData["5. adjusted close"].ToString(), CultureInfo.InvariantCulture),
+                    Volume = long.Parse(dailyData["6. volume"].ToString()),
+                    DividendAmount = double.Parse(dailyData["7. dividend amount"].ToString(), CultureInfo.InvariantCulture),
+                    SplitCoefficient = double.Parse(dailyData["8. split coefficient"].ToString(), CultureInfo.InvariantCulture)
+                };
+
+                historicalDataList.Add(historicalData);
+            }
+
+            return historicalDataList;
+        }
     }
 }
