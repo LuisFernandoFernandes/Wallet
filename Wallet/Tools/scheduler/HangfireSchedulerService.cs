@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Runtime.InteropServices;
 using Wallet.Modules.asset_module;
 using Wallet.Modules.asset_module.enums;
 using Wallet.Modules.user_module;
@@ -17,14 +18,16 @@ namespace Wallet.Tools.scheduler
         private readonly IAssetService _assetService;
         private readonly IUserService _userService;
         private readonly IAlphaVantageService _alphaVantageService;
+        private readonly IAssetHistoricalDataService _assetHistoricalDataService;
 
-        public HangfireSchedulerService(Context context, IBackgroundJobClient backgroundJobClient, IAssetService assetService, IUserService userService, IAlphaVantageService alphaVantageService)
+        public HangfireSchedulerService(Context context, IBackgroundJobClient backgroundJobClient, IAssetService assetService, IUserService userService, IAlphaVantageService alphaVantageService, IAssetHistoricalDataService assetHistoricalDataService)
         {
             _context = context;
             _backgroundJobClient = backgroundJobClient;
             _assetService = assetService;
             _userService = userService;
             _alphaVantageService = alphaVantageService;
+            _assetHistoricalDataService = assetHistoricalDataService;
         }
 
         public async Task ScheduleJobs()
@@ -49,6 +52,7 @@ namespace Wallet.Tools.scheduler
                 //BackgroundJob.Enqueue(() => UserSeedData());
                 //BackgroundJob.Enqueue(() => USAssetSeedData());
                 //BackgroundJob.Enqueue(() => MyAssetSeedData());
+                BackgroundJob.Enqueue(() => GetHistoricalData());
             }
             catch (Exception)
             {
@@ -231,5 +235,18 @@ namespace Wallet.Tools.scheduler
                 }
             }
         }
+
+        public async Task GetHistoricalData()
+        {
+            var assets = await _context.Asset.AsQueryable().Join(_context.Position, asset => asset.Id, position => position.AssetId, (asset, position) => asset).Distinct().ToListAsync();
+            foreach (var asset in assets)
+            {
+                var assetHistoricalDataDTO = await _alphaVantageService.GetHistoricalData(asset.Ticker);
+                await _assetHistoricalDataService.AddHistoricalDataAsync(assetHistoricalDataDTO, asset.Id);
+            }
+
+        }
+
+
     }
 }

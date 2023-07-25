@@ -49,6 +49,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITradeService, TradeService>();
 builder.Services.AddScoped<IPositionService, PositionService>();
 builder.Services.AddScoped<IAssetService, AssetService>();
+builder.Services.AddScoped<IAssetHistoricalDataService, AssetHistoricalDataService>();
 builder.Services.AddScoped<IAlphaVantageService, AlphaVantageService>();
 builder.Services.AddScoped<IHangfireSchedulerService, HangfireSchedulerService>();
 builder.Services.AddScoped<IAdmService, AdmService>();

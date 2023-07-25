@@ -10,7 +10,7 @@ namespace Wallet.Modules.asset_module
 {
     public class AssetService : GenericService<Asset>, IAssetService
     {
-        #region Variáveis
+        #region Vars
         private IValidationDictionary _validatonDictionary;
         private Context _context;
         private readonly IAlphaVantageService _alphaVantageService;

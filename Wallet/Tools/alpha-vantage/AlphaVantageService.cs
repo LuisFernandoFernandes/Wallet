@@ -262,12 +262,11 @@ namespace Wallet.Tools.alpha_vantage
             }
             return companyOverviews;
         }
-
         public async Task<List<HistoricalDataDTO>> GetHistoricalData(string symbol)
         {
             await WaitForRateLimit();
 
-            string apiUrl = $"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={symbol}&apikey={_apiKey}";
+            string apiUrl = $"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={_apiKey}";
 
             HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
             UpdateRequestsCount();
@@ -287,23 +286,87 @@ namespace Wallet.Tools.alpha_vantage
 
             foreach (var dailyData in timeSeriesData.Children())
             {
-                var historicalData = new HistoricalDataDTO
-                {
-                    Date = DateTime.Parse(dailyData.Path),
-                    Open = double.Parse(dailyData["1. open"].ToString(), CultureInfo.InvariantCulture),
-                    High = double.Parse(dailyData["2. high"].ToString(), CultureInfo.InvariantCulture),
-                    Low = double.Parse(dailyData["3. low"].ToString(), CultureInfo.InvariantCulture),
-                    Close = double.Parse(dailyData["4. close"].ToString(), CultureInfo.InvariantCulture),
-                    AdjustedClose = double.Parse(dailyData["5. adjusted close"].ToString(), CultureInfo.InvariantCulture),
-                    Volume = long.Parse(dailyData["6. volume"].ToString()),
-                    DividendAmount = double.Parse(dailyData["7. dividend amount"].ToString(), CultureInfo.InvariantCulture),
-                    SplitCoefficient = double.Parse(dailyData["8. split coefficient"].ToString(), CultureInfo.InvariantCulture)
-                };
+                var historicalData = new HistoricalDataDTO();
+                var values = dailyData.First();
+                var date = dailyData.Path.Split(".");
+
+                historicalData.Date = DateTime.Parse(date[1]);
+                historicalData.Open = double.Parse(values["1. open"].ToString(), CultureInfo.InvariantCulture);
+                historicalData.High = double.Parse(values["2. high"].ToString(), CultureInfo.InvariantCulture);
+                historicalData.Low = double.Parse(values["3. low"].ToString(), CultureInfo.InvariantCulture);
+                historicalData.Close = double.Parse(values["4. close"].ToString(), CultureInfo.InvariantCulture);
+                historicalData.Volume = long.Parse(values["5. volume"].ToString());
 
                 historicalDataList.Add(historicalData);
             }
 
             return historicalDataList;
         }
+
+
+
+        //public async Task<List<HistoricalDataDTO>> GetHistoricalData(string symbol)
+        //{
+        //    await WaitForRateLimit();
+
+        //    //string apiUrl = $"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={symbol}&apikey={_apiKey}";
+
+        //    string apiUrl = $"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={_apiKey}";
+
+
+        //    HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
+        //    UpdateRequestsCount();
+        //    response.EnsureSuccessStatusCode();
+
+        //    var responseData = await response.Content.ReadAsStringAsync();
+        //    var jsonData = JObject.Parse(responseData);
+
+        //    var timeSeriesData = jsonData["Time Series (Daily)"];
+
+        //    if (timeSeriesData == null)
+        //    {
+        //        throw new Exception("Dados históricos não encontrados.");
+        //    }
+        //    List<HistoricalDataDTO> historicalDataList = new List<HistoricalDataDTO>();
+        //    var dailyDataList = timeSeriesData["Time Series (Daily)"];
+        //    foreach (var dailyData in dailyDataList.Children())
+        //    {
+        //        var historicalData = new HistoricalDataDTO();
+
+        //        //historicalData.Date = DateTime.Parse(dailyData.Path);
+        //        //historicalData.Open = double.Parse(dailyData["1. open"].ToString(), CultureInfo.InvariantCulture);
+        //        //historicalData.High = double.Parse(dailyData["2. high"].ToString(), CultureInfo.InvariantCulture);
+        //        //historicalData.Low = double.Parse(dailyData["3. low"].ToString(), CultureInfo.InvariantCulture);
+        //        //historicalData.Close = double.Parse(dailyData["4. close"].ToString(), CultureInfo.InvariantCulture);
+        //        //historicalData.AdjustedClose = double.Parse(dailyData["5. adjusted close"].ToString(), CultureInfo.InvariantCulture);
+        //        //historicalData.Volume = long.Parse(dailyData["6. volume"].ToString());
+        //        //historicalData.DividendAmount = double.Parse(dailyData["7. dividend amount"].ToString(), CultureInfo.InvariantCulture);
+        //        //historicalData.SplitCoefficient = double.Parse(dailyData["8. split coefficient"].ToString(), CultureInfo.InvariantCulture);
+
+        //        var valores = dailyData.First();
+
+        //        historicalData.Date = DateTime.Parse(dailyData.Path);
+        //        historicalData.Open = double.Parse(valores["1. open"].ToString(), CultureInfo.InvariantCulture);
+        //        historicalData.High = double.Parse(valores["2. high"].ToString(), CultureInfo.InvariantCulture);
+        //        historicalData.Low = double.Parse(valores["3. low"].ToString(), CultureInfo.InvariantCulture);
+        //        historicalData.Close = double.Parse(valores["4. close"].ToString(), CultureInfo.InvariantCulture);
+        //        historicalData.Volume = long.Parse(valores["5. volume"].ToString());
+
+
+        //        var x = 0;
+        //        historicalData.Date = DateTime.Parse(dailyData.Path);
+        //        historicalData.Open = double.Parse(dailyData["1. open"].ToString(), CultureInfo.InvariantCulture);
+        //        historicalData.High = double.Parse(dailyData["2. high"].ToString(), CultureInfo.InvariantCulture);
+        //        historicalData.Low = double.Parse(dailyData["3. low"].ToString(), CultureInfo.InvariantCulture);
+        //        historicalData.Close = double.Parse(dailyData["4. close"].ToString(), CultureInfo.InvariantCulture);
+        //        historicalData.Volume = long.Parse(dailyData["5. volume"].ToString());
+
+
+
+        //        historicalDataList.Add(historicalData);
+        //    }
+
+        //    return historicalDataList;
+        //}
     }
 }

@@ -16,7 +16,7 @@ namespace Wallet.Modules.user_module
 {
     public class UserService : GenericService<User>, IUserService
     {
-        #region Variáveis
+        #region Vars
         private IValidationDictionary _validatonDictionary;
         private Context _context;
         private readonly IConfiguration _configuration;
