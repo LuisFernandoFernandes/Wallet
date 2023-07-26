@@ -241,12 +241,17 @@ namespace Wallet.Tools.scheduler
             var assets = await _context.Asset.AsQueryable().Join(_context.Position, asset => asset.Id, position => position.AssetId, (asset, position) => asset).Distinct().ToListAsync();
             foreach (var asset in assets)
             {
-                var assetHistoricalDataDTO = await _alphaVantageService.GetHistoricalData(asset.Ticker);
-                await _assetHistoricalDataService.AddHistoricalDataAsync(assetHistoricalDataDTO, asset.Id);
+                try
+                {
+                    var assetHistoricalDataDTO = await _alphaVantageService.GetHistoricalData(asset.Ticker);
+                    if (assetHistoricalDataDTO == null) continue;
+                    await _assetHistoricalDataService.AddHistoricalDataAsync(assetHistoricalDataDTO, asset.Id);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
             }
-
         }
-
-
     }
 }
