@@ -179,7 +179,7 @@ namespace Wallet.Tools.scheduler
 
         public async Task MyAssetSeedData()
         {
-            string apiEndpoint = "http://localhost:5000/tickers";
+            string apiEndpoint = "http://127.0.0.1:5000/tickers";
 
             using (HttpClient httpClient = new HttpClient())
             {
@@ -238,18 +238,40 @@ namespace Wallet.Tools.scheduler
 
         public async Task GetHistoricalData()
         {
-            var assets = await _context.Asset.AsQueryable().Join(_context.Position, asset => asset.Id, position => position.AssetId, (asset, position) => asset).Distinct().ToListAsync();
-            foreach (var asset in assets)
+            string apiEndpoint = "http://127.0.0.1:5000/historicaldata/stock/";
+
+            using (HttpClient httpClient = new HttpClient())
             {
-                try
+
+                var assets = await _context.Asset.AsQueryable().Join(_context.Position, asset => asset.Id, position => position.AssetId, (asset, position) => asset).Distinct().ToListAsync();
+                foreach (var asset in assets)
                 {
-                    var assetHistoricalDataDTO = await _alphaVantageService.GetHistoricalData(asset.Ticker);
-                    if (assetHistoricalDataDTO == null) continue;
-                    await _assetHistoricalDataService.AddHistoricalDataAsync(assetHistoricalDataDTO, asset.Id);
-                }
-                catch (Exception)
-                {
-                    continue;
+                    try
+                    {
+
+                        //var assetHistoricalDataDTO = await _alphaVantageService.GetHistoricalData(asset.Ticker);
+                        var ticker = asset.Ticker;
+
+                        if (ticker.EndsWith(".SAO"))
+                        {
+                            ticker = ticker.Substring(0, ticker.Length - 1);
+                        }
+                        var url = $"{apiEndpoint}{ticker}";
+
+                        HttpResponseMessage response = await httpClient.GetAsync(url);
+                        response.EnsureSuccessStatusCode(); // Verifica se a resposta foi bem-sucedida (status code 2xx)
+
+                        string responseBody = await response.Content.ReadAsStringAsync();
+
+
+                        var assetHistoricalDataDTO = JsonConvert.DeserializeObject<HistoricalDataStockDataDTO[]>(responseBody);
+                        if (assetHistoricalDataDTO == null) continue;
+                        //await _assetHistoricalDataService.AddHistoricalDataAsync(assetHistoricalDataDTO, asset.Id);
+                    }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
                 }
             }
         }
