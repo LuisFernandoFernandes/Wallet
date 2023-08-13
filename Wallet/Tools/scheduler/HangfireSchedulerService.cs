@@ -266,7 +266,7 @@ namespace Wallet.Tools.scheduler
 
                         var assetHistoricalDataDTO = JsonConvert.DeserializeObject<HistoricalDataStockDataDTO[]>(responseBody);
                         if (assetHistoricalDataDTO == null) continue;
-                        //await _assetHistoricalDataService.AddHistoricalDataAsync(assetHistoricalDataDTO, asset.Id);
+                        await _assetHistoricalDataService.AddHistoricalDataAsync(assetHistoricalDataDTO.ToList(), asset.Id);
                     }
                     catch (Exception)
                     {

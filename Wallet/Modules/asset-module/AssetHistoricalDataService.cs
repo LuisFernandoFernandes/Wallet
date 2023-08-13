@@ -20,7 +20,7 @@ namespace Wallet.Modules.asset_module
         }
         #endregion
 
-        public async Task AddHistoricalDataAsync(List<HistoricalDataDTO> assetHistoricalDataDTOList, string assetId)
+        public async Task AddHistoricalDataAsync(List<HistoricalDataStockDataDTO> assetHistoricalDataDTOList, string assetId)
         {
             foreach (var assetHistoricalDataDTO in assetHistoricalDataDTOList)
             {
@@ -38,7 +38,6 @@ namespace Wallet.Modules.asset_module
                     SplitCoefficient = assetHistoricalDataDTO.SplitCoefficient
                 };
 
-                // Evite duplicação de consultas no banco de dados usando AnyAsync() com AsNoTracking()
                 var dataExists = await _context.AssetHistoricalData.AsNoTracking()
                     .AnyAsync(a => a.AssetId == assetHistoricalData.AssetId && a.Date == assetHistoricalData.Date);
 

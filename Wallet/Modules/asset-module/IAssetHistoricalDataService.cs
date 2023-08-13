@@ -5,6 +5,6 @@ namespace Wallet.Modules.asset_module
 {
     public interface IAssetHistoricalDataService : IGenericService<AssetHistoricalData>
     {
-        Task AddHistoricalDataAsync(List<HistoricalDataDTO> assetHistoricalDataDTOList, string assetId);
+        Task AddHistoricalDataAsync(List<HistoricalDataStockDataDTO> assetHistoricalDataDTOList, string assetId);
     }
 }
